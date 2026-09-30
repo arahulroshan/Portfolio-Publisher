@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>My Resume - Portfolio Publisher</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/style.css') }}">
+
+</head>
+
+<body>
+
+    <!-- NAVBAR -->
+
+    <nav class="navbar">
+
+        <div class="logo">
+            Portfolio Publisher
+        </div>
+
+        <div class="nav-links">
+
+            <a href="{{ url_for('dashboard') }}">
+                Dashboard
+            </a>
+
+            <a href="{{ url_for('logout') }}">
+                Logout
+            </a>
+
+        </div>
+
+    </nav>
+
+
+    <!-- RESUME SECTION -->
+
+    <section class="dashboard">
+
+        <div class="dashboard-header">
+
+            <h1>
+                My Resume 📄
+            </h1>
+
+            <p>
+                Upload and manage your resume.
+            </p>
+
+        </div>
+
+
+        <!-- UPLOAD RESUME -->
+
+        <div class="auth-box project-form-box">
+
+            <h2>
+                Upload Resume
+            </h2>
+
+            <form method="POST"
+                  enctype="multipart/form-data">
+
+                <label>
+                    Select Resume
+                </label>
+
+                <input
+                    type="file"
+                    name="resume_file"
+                    accept=".pdf,.doc,.docx"
+                    required
+                >
+
+                <button type="submit">
+                    📤 Upload Resume
+                </button>
+
+            </form>
+
+        </div>
+
+
+        <!-- CURRENT RESUME -->
+
+        {% if resume %}
+
+        <div class="dashboard-header project-list-title">
+
+            <h1>
+                Current Resume
+            </h1>
+
+        </div>
+
+
+        <div class="project-grid">
+
+            <div class="project-card">
+
+                <div class="project-content">
+
+                    <h2>
+                        📄 {{ resume["resume_file"] }}
+                    </h2>
+
+                    <br>
+
+                    <a
+                        href="{{ url_for('static', filename='images/resumes/' + resume['resume_file']) }}"
+                        target="_blank"
+                        class="project-btn"
+                    >
+                        👁️ View Resume
+                    </a>
+
+
+                    <a
+                        href="{{ url_for('delete_resume') }}"
+                        class="project-btn delete-btn"
+                        onclick="return confirm('Are you sure you want to delete your resume?');"
+                    >
+                        🗑️ Delete Resume
+                    </a>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        {% else %}
+
+        <div class="no-projects">
+
+            <h2>
+                No Resume Uploaded Yet 📄
+            </h2>
+
+            <p>
+                Upload your resume using the form above.
+            </p>
+
+        </div>
+
+        {% endif %}
+
+
+        <!-- BACK -->
+
+        <div class="back-dashboard">
+
+            <a href="{{ url_for('dashboard') }}">
+                ← Back to Dashboard
+            </a>
+
+        </div>
+
+    </section>
+
+</body>
+
+</html>

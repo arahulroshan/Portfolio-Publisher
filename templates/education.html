@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Education - Portfolio Publisher</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+
+<body>
+
+    <nav class="navbar">
+        <div class="logo">Portfolio Publisher</div>
+
+        <div class="nav-links">
+            <a href="/dashboard">Dashboard</a>
+            <a href="/logout">Logout</a>
+        </div>
+    </nav>
+
+    <div class="auth-container">
+
+        <div class="auth-box">
+
+            <h1>Education 🎓</h1>
+
+            <p class="auth-subtitle">
+                Add your academic details
+            </p>
+
+            <form method="POST">
+
+                <label>Degree</label>
+                <input type="text"
+                       name="degree"
+                       placeholder="Example: B.Tech Artificial Intelligence and Data Science"
+                       required>
+
+                <label>Institution</label>
+                <input type="text"
+                       name="institution"
+                       placeholder="Enter your college/university"
+                       required>
+
+                <label>Year</label>
+                <input type="text"
+                       name="year"
+                       placeholder="Example: 2024 - 2028"
+                       required>
+
+                <label>CGPA / Grade</label>
+                <input type="text"
+                       name="grade"
+                       placeholder="Example: 8.2 / 10"
+                       required>
+
+                <button type="submit">Save Education</button>
+
+            </form>
+
+        </div>
+
+    </div>
+
+</body>
+</html>

@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>My Profile - Portfolio Publisher</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/style.css') }}">
+
+</head>
+
+<body>
+
+    <nav class="navbar">
+
+        <div class="logo">
+            Portfolio Publisher
+        </div>
+
+        <div class="nav-links">
+
+            <a href="/dashboard">
+                Dashboard
+            </a>
+
+            <a href="/logout">
+                Logout
+            </a>
+
+        </div>
+
+    </nav>
+
+
+    <div class="auth-container">
+
+        <div class="auth-box">
+
+            <h1>
+                My Profile 👤
+            </h1>
+
+            <p class="auth-subtitle">
+                Add your personal information
+            </p>
+
+
+            <form method="POST"
+                  enctype="multipart/form-data">
+
+
+                <!-- Profile Photo -->
+
+                <label>
+                    Profile Photo
+                </label>
+
+                <input
+                    type="file"
+                    name="profile_image"
+                    accept="image/*"
+                >
+
+
+                <!-- Full Name -->
+
+                <label>
+                    Full Name
+                </label>
+
+                <input
+                    type="text"
+                    name="full_name"
+                    placeholder="Enter your full name"
+                >
+
+
+                <!-- Phone -->
+
+                <label>
+                    Phone
+                </label>
+
+                <input
+                    type="text"
+                    name="phone"
+                    placeholder="Enter your phone number"
+                >
+
+
+                <!-- Location -->
+
+                <label>
+                    Location
+                </label>
+
+                <input
+                    type="text"
+                    name="location"
+                    placeholder="Enter your location"
+                >
+
+
+                <!-- About -->
+
+                <label>
+                    About Me
+                </label>
+
+                <textarea
+                    name="about"
+                    placeholder="Write something about yourself"></textarea>
+
+
+                <!-- Save -->
+
+                <button type="submit">
+                    Save Profile
+                </button>
+
+
+            </form>
+
+        </div>
+
+    </div>
+
+</body>
+
+</html>

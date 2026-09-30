@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>My Certificates - Portfolio Publisher</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/style.css') }}">
+
+</head>
+
+<body>
+
+    <!-- ================= NAVBAR ================= -->
+
+    <nav class="navbar">
+
+        <div class="logo">
+            Portfolio Publisher
+        </div>
+
+        <div class="nav-links">
+
+            <a href="{{ url_for('dashboard') }}">
+                Dashboard
+            </a>
+
+            <a href="{{ url_for('logout') }}">
+                Logout
+            </a>
+
+        </div>
+
+    </nav>
+
+
+    <!-- ================= CERTIFICATES ================= -->
+
+    <section class="dashboard">
+
+        <div class="dashboard-header">
+
+            <h1>
+                My Certificates 📜
+            </h1>
+
+            <p>
+                Add and manage your achievements.
+            </p>
+
+        </div>
+
+
+        <!-- ================= ADD CERTIFICATE ================= -->
+
+        <div class="auth-box project-form-box">
+
+            <h2>
+                Add New Certificate
+            </h2>
+
+            <form method="POST"
+                  enctype="multipart/form-data">
+
+                <label>
+                    Certificate Name
+                </label>
+
+                <input
+                    type="text"
+                    name="certificate_name"
+                    placeholder="Example: Python Certificate"
+                    required
+                >
+
+
+                <label>
+                    Issuing Organization
+                </label>
+
+                <input
+                    type="text"
+                    name="issuing_organization"
+                    placeholder="Example: NPTEL"
+                >
+
+
+                <label>
+                    Issue Date
+                </label>
+
+                <input
+                    type="date"
+                    name="issue_date"
+                >
+
+
+                <label>
+                    Certificate Link
+                </label>
+
+                <input
+                    type="url"
+                    name="certificate_link"
+                    placeholder="https://..."
+                >
+
+
+                <!-- ================= CERTIFICATE IMAGE ================= -->
+
+                <label>
+                    Certificate Image
+                </label>
+
+                <input
+                    type="file"
+                    name="certificate_image"
+                    accept="image/*"
+                >
+
+
+                <button type="submit">
+                    ➕ Add Certificate
+                </button>
+
+            </form>
+
+        </div>
+
+
+        <!-- ================= CERTIFICATE LIST ================= -->
+
+        <div class="dashboard-header project-list-title">
+
+            <h1>
+                My Certificates
+            </h1>
+
+            <p>
+                Your certificates will appear here.
+            </p>
+
+        </div>
+
+
+        <div class="project-grid">
+
+            {% if certificates %}
+
+                {% for certificate in certificates %}
+
+                    <div class="project-card">
+
+                        <!-- ================= CERTIFICATE IMAGE ================= -->
+
+                        {% if certificate["certificate_image"] %}
+
+                            <div class="project-image">
+
+                                <img
+                                    src="{{ url_for('static', filename='images/certificates/' + certificate['certificate_image']) }}"
+                                    alt="Certificate Image"
+                                >
+
+                            </div>
+
+                        {% endif %}
+
+
+                        <div class="project-content">
+
+                            <h2>
+                                📜 {{ certificate["certificate_name"] }}
+                            </h2>
+
+
+                            <p>
+                                <strong>Organization:</strong>
+                                {{ certificate["issuing_organization"] }}
+                            </p>
+
+
+                            <p>
+                                <strong>Issue Date:</strong>
+                                {{ certificate["issue_date"] }}
+                            </p>
+
+
+                            {% if certificate["certificate_link"] %}
+
+                                <a
+                                    href="{{ certificate['certificate_link'] }}"
+                                    target="_blank"
+                                    class="project-btn"
+                                >
+                                    🔗 View Certificate
+                                </a>
+
+                            {% endif %}
+
+                            <a
+                                href="{{ url_for('edit_certificate', certificate_id=certificate['id']) }}"
+                                class="project-btn"
+>
+                                ✏️ Edit
+                            </a>
+                            <a
+                                href="{{ url_for('delete_certificate', certificate_id=certificate['id']) }}"
+                                class="project-btn delete-btn"
+                                onclick="return confirm('Are you sure you want to delete this certificate?');"
+                            >
+                                🗑️ Delete
+                            </a>
+
+                        </div>
+
+                    </div>
+
+                {% endfor %}
+
+            {% else %}
+
+                <div class="no-projects">
+
+                    <h2>
+                        No Certificates Added Yet 🚀
+                    </h2>
+
+                    <p>
+                        Add your first certificate using the form above.
+                    </p>
+
+                </div>
+
+            {% endif %}
+
+        </div>
+
+
+        <!-- ================= BACK ================= -->
+
+        <div class="back-dashboard">
+
+            <a href="{{ url_for('dashboard') }}">
+                ← Back to Dashboard
+            </a>
+
+        </div>
+
+    </section>
+
+</body>
+
+</html>

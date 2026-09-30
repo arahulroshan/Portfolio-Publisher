@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Edit Certificate - Portfolio Publisher</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+
+<body>
+
+    <nav class="navbar">
+
+        <div class="logo">
+            Portfolio Publisher
+        </div>
+
+        <div class="nav-links">
+            <a href="/dashboard">Dashboard</a>
+            <a href="/certificates">Certificates</a>
+            <a href="/logout">Logout</a>
+        </div>
+
+    </nav>
+
+
+    <div class="auth-container">
+
+        <div class="auth-box">
+
+            <h1>✏️ Edit Certificate</h1>
+
+            <p class="auth-subtitle">
+                Update your certificate details
+            </p>
+
+
+            <form method="POST">
+
+                <label>Certificate Name</label>
+
+                <input
+                    type="text"
+                    name="certificate_name"
+                    value="{{ certificate['certificate_name'] }}"
+                    required
+                >
+
+
+                <label>Issuing Organization</label>
+
+                <input
+                    type="text"
+                    name="issuing_organization"
+                    value="{{ certificate['issuing_organization'] }}"
+                >
+
+
+                <label>Issue Date</label>
+
+                <input
+                    type="date"
+                    name="issue_date"
+                    value="{{ certificate['issue_date'] }}"
+                >
+
+
+                <label>Certificate Link</label>
+
+                <input
+                    type="url"
+                    name="certificate_link"
+                    value="{{ certificate['certificate_link'] }}"
+                    placeholder="https://..."
+                >
+
+
+                <button type="submit">
+                    Update Certificate
+                </button>
+
+            </form>
+
+
+            <br>
+
+            <a href="/certificates">
+                ← Back to Certificates
+            </a>
+
+        </div>
+
+    </div>
+
+</body>
+
+</html>

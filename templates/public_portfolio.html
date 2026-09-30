@@ -1,0 +1,2162 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>
+        {{ profile["full_name"] if profile else "My Portfolio" }}
+        - Portfolio
+    </title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&family=Outfit:wght@300;400;500;600;700;800&family=Poppins:wght@300;400;500;600;700&family=Roboto:wght@300;400;500;700&family=Space+Grotesk:wght@400;500;600;700&display=swap"
+      rel="stylesheet">
+    <style>
+
+    body {
+        font-family: '{{ theme["font_style"] if theme else "Outfit" }}', sans-serif;
+    }
+
+</style>
+
+    <style>
+
+        :root {
+
+            --neon:
+                {{ theme["theme_color"] if theme else "#8b5cf6" }};
+
+            --bg:
+                {{ theme["background_color"] if theme else "#050509" }};
+{% if theme and theme["background_style"] == "blue" %}
+    --neon: #00b7ff;
+{% elif theme and theme["background_style"] == "green" %}
+    --neon: #00ff88;
+{% elif theme and theme["background_style"] == "pink" %}
+    --neon: #ff2bd6;
+{% elif theme and theme["background_style"] == "cyan" %}
+    --neon: #00ffff;
+{% else %}
+    --neon: {{ theme["theme_color"] if theme else "#8b5cf6" }};
+{% endif %}
+            --white: #ffffff;
+
+            --muted: #aaa7b8;
+
+            --card:
+                rgba(255, 255, 255, 0.045);
+
+            --border:
+                rgba(255, 255, 255, 0.10);
+
+        }
+
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+
+        body {
+
+    font-family:
+        '{{ theme["font_style"] if theme else "Outfit" }}',
+        sans-serif;
+
+    background:
+        radial-gradient(
+            circle at 15% 20%,
+            color-mix(in srgb, var(--neon) 25%, transparent),
+            transparent 35%
+        ),
+        radial-gradient(
+            circle at 85% 75%,
+            color-mix(in srgb, var(--neon) 20%, transparent),
+            transparent 35%
+        ),
+        linear-gradient(
+            135deg,
+            #000000,
+            var(--bg),
+            #000000
+        );
+
+    color: var(--white);
+
+    min-height: 100vh;
+
+    overflow-x: hidden;
+
+}
+        /* ================= BACKGROUND ================= */
+
+        .background {
+
+            position: fixed;
+
+            inset: 0;
+
+            z-index: -5;
+
+            overflow: hidden;
+
+            pointer-events: none;
+
+        }
+
+
+        .grid {
+
+            position: absolute;
+
+            inset: -50%;
+
+            background-image:
+    linear-gradient(
+        color-mix(in srgb, var(--neon) 18%, transparent) 1px,
+        transparent 1px
+    ),
+    linear-gradient(
+        90deg,
+        color-mix(in srgb, var(--neon) 18%, transparent) 1px,
+        transparent 1px
+    );
+
+            background-size: 55px 55px;
+
+            transform: perspective(600px)
+                       rotateX(60deg)
+                       translateY(-80px);
+
+            animation: gridMove 15s linear infinite;
+
+        }
+
+
+        @keyframes gridMove {
+
+            from {
+                transform:
+                    perspective(600px)
+                    rotateX(60deg)
+                    translateY(-80px);
+            }
+
+            to {
+                transform:
+                    perspective(600px)
+                    rotateX(60deg)
+                    translateY(30px);
+            }
+
+        }
+
+
+        .orb {
+
+    position: absolute;
+
+    width: 350px;
+
+    height: 350px;
+
+    border-radius: 50%;
+
+    background:
+        radial-gradient(
+            circle,
+            color-mix(
+                in srgb,
+                var(--neon) 45%,
+                transparent
+            ),
+            transparent 70%
+        );
+
+    filter: blur(30px);
+
+    opacity: 0.75;
+
+    animation: float 8s ease-in-out infinite;
+
+}
+
+
+        .orb.one {
+
+    top: 5%;
+
+    left: -100px;
+
+    animation-duration: 9s;
+
+}
+
+
+.orb.two {
+
+    right: -100px;
+
+    top: 40%;
+
+    animation-delay: 2s;
+
+    animation-duration: 11s;
+
+}
+
+
+.orb.three {
+
+    bottom: -120px;
+
+    left: 35%;
+
+    animation-delay: 4s;
+
+    animation-duration: 13s;
+
+}
+
+        @keyframes float {
+
+    0% {
+        transform: translate(0px, 0px) scale(1);
+    }
+
+    25% {
+        transform: translate(25px, -25px) scale(1.03);
+    }
+
+    50% {
+        transform: translate(-15px, -50px) scale(1.06);
+    }
+
+    75% {
+        transform: translate(-30px, -25px) scale(1.03);
+    }
+
+    100% {
+        transform: translate(0px, 0px) scale(1);
+    }
+
+}
+
+
+        /* ================= NAVBAR ================= */
+
+        .navbar {
+
+            position: fixed;
+
+            top: 0;
+
+            left: 0;
+
+            right: 0;
+
+            z-index: 100;
+
+            height: 75px;
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: space-between;
+
+            padding: 0 7%;
+
+            background:
+                rgba(5,5,9,0.72);
+
+            backdrop-filter: blur(18px);
+
+            border-bottom:
+                1px solid
+                color-mix(
+                    in srgb,
+                    var(--neon) 35%,
+                    transparent
+                );
+
+        }
+
+
+        .logo {
+
+            color: var(--neon);
+
+            font-family: "Space Grotesk", sans-serif;
+
+            font-size: 21px;
+
+            font-weight: 700;
+
+            text-shadow:
+                0 0 15px
+                color-mix(
+                    in srgb,
+                    var(--neon) 65%,
+                    transparent
+                );
+
+        }
+
+
+        .nav-links {
+
+            display: flex;
+
+            gap: 28px;
+
+        }
+
+
+        .nav-links a {
+
+            color: #d8d5df;
+
+            text-decoration: none;
+
+            font-size: 14px;
+
+            transition: 0.3s;
+
+        }
+
+
+        .nav-links a:hover {
+
+            color: var(--neon);
+
+            text-shadow:
+                0 0 12px var(--neon);
+
+        }
+
+
+        /* ================= MAIN ================= */
+
+        main {
+
+            width: 100%;
+
+        }
+
+
+        section {
+
+            width: 88%;
+
+            max-width: 1150px;
+
+            margin: auto;
+
+            padding: 110px 0;
+
+        }
+
+
+        /* ================= HERO ================= */
+
+        .hero {
+
+            min-height: 100vh;
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: center;
+
+            text-align: center;
+
+            padding-top: 120px;
+
+        }
+
+
+        .hero-content {
+
+            max-width: 900px;
+
+        }
+
+
+        .badge {
+
+            display: inline-block;
+
+            padding: 9px 18px;
+
+            border: 1px solid
+                color-mix(
+                    in srgb,
+                    var(--neon) 55%,
+                    transparent
+                );
+
+            border-radius: 30px;
+
+            color: var(--neon);
+
+            background:
+                color-mix(
+                    in srgb,
+                    var(--neon) 8%,
+                    transparent
+                );
+
+            font-size: 13px;
+
+            margin-bottom: 28px;
+
+            box-shadow:
+                0 0 20px
+                color-mix(
+                    in srgb,
+                    var(--neon) 15%,
+                    transparent
+                );
+
+        }
+
+
+        .hero h1 {
+
+            font-family: "Space Grotesk", sans-serif;
+
+            font-size: clamp(
+                48px,
+                8vw,
+                92px
+            );
+
+            line-height: 0.95;
+
+            margin-bottom: 22px;
+
+            font-weight: 800;
+
+        }
+
+
+        .hero h1 span {
+
+            color: var(--neon);
+
+            text-shadow:
+                0 0 25px
+                color-mix(
+                    in srgb,
+                    var(--neon) 60%,
+                    transparent
+                );
+
+        }
+
+
+        .hero h2 {
+
+            font-size: clamp(
+                20px,
+                3vw,
+                30px
+            );
+
+            font-weight: 500;
+
+            color: #dedbe5;
+
+            margin-bottom: 20px;
+
+        }
+
+
+        .hero p {
+
+            max-width: 700px;
+
+            margin: auto;
+
+            color: var(--muted);
+
+            line-height: 1.8;
+
+            font-size: 16px;
+
+        }
+
+
+        .hero-buttons {
+
+            margin-top: 35px;
+
+            display: flex;
+
+            justify-content: center;
+
+            gap: 15px;
+
+            flex-wrap: wrap;
+
+        }
+
+
+        .btn {
+
+            display: inline-block;
+
+            padding: 13px 25px;
+
+            border-radius: 10px;
+
+            text-decoration: none;
+
+            font-weight: 600;
+
+            transition: 0.3s;
+
+        }
+
+
+        .btn-primary {
+
+            background: var(--neon);
+
+            color: #050509;
+
+            box-shadow:
+                0 0 25px
+                color-mix(
+                    in srgb,
+                    var(--neon) 35%,
+                    transparent
+                );
+
+        }
+
+
+        .btn-primary:hover {
+
+            transform: translateY(-3px);
+
+            box-shadow:
+                0 0 35px
+                color-mix(
+                    in srgb,
+                    var(--neon) 65%,
+                    transparent
+                );
+
+        }
+
+
+        .btn-outline {
+
+            border: 1px solid
+                color-mix(
+                    in srgb,
+                    var(--neon) 60%,
+                    transparent
+                );
+
+            color: var(--neon);
+
+        }
+
+
+        .btn-outline:hover {
+
+            background:
+                color-mix(
+                    in srgb,
+                    var(--neon) 12%,
+                    transparent
+                );
+
+        }
+
+
+        /* ================= SOCIAL ================= */
+
+        .social {
+
+            margin-top: 35px;
+
+            display: flex;
+
+            justify-content: center;
+
+            gap: 14px;
+
+        }
+
+
+        .social a {
+
+            width: 44px;
+
+            height: 44px;
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: center;
+
+            border-radius: 50%;
+
+            border: 1px solid var(--border);
+
+            background: var(--card);
+
+            color: #ddd;
+
+            text-decoration: none;
+
+            transition: 0.3s;
+
+        }
+
+
+        .social a:hover {
+
+            color: var(--neon);
+
+            border-color: var(--neon);
+
+            box-shadow:
+                0 0 18px
+                color-mix(
+                    in srgb,
+                    var(--neon) 40%,
+                    transparent
+                );
+
+            transform: translateY(-3px);
+
+        }
+
+
+        /* ================= SECTION TITLE ================= */
+
+        .section-title {
+
+            margin-bottom: 45px;
+
+        }
+
+
+        .section-title span {
+
+            color: var(--neon);
+
+            font-size: 13px;
+
+            text-transform: uppercase;
+
+            letter-spacing: 3px;
+
+        }
+
+
+        .section-title h2 {
+
+            font-family: "Space Grotesk", sans-serif;
+
+            font-size: 42px;
+
+            margin-top: 8px;
+
+        }
+
+
+        /* ================= GLASS CARD ================= */
+
+        .glass {
+
+            background:
+                linear-gradient(
+                    145deg,
+                    rgba(255,255,255,0.07),
+                    rgba(255,255,255,0.025)
+                );
+
+            border: 1px solid var(--border);
+
+            border-radius: 20px;
+
+            padding: 30px;
+
+            backdrop-filter: blur(15px);
+
+            transition: 0.35s;
+
+        }
+
+
+        .glass:hover {
+
+            border-color:
+                color-mix(
+                    in srgb,
+                    var(--neon) 45%,
+                    transparent
+                );
+
+            transform: translateY(-5px);
+
+            box-shadow:
+                0 15px 45px
+                rgba(0,0,0,0.25);
+
+        }
+
+
+        /* ================= ABOUT ================= */
+
+        .about-grid {
+
+            display: grid;
+
+            grid-template-columns:
+                1.4fr 0.8fr;
+
+            gap: 25px;
+
+        }
+
+
+        .about-text {
+
+            color: var(--muted);
+
+            line-height: 1.9;
+
+            font-size: 16px;
+
+        }
+
+
+        .contact-info {
+
+            display: grid;
+
+            gap: 15px;
+
+        }
+
+
+        .info-item {
+
+            padding: 15px;
+
+            border-radius: 12px;
+
+            background:
+                rgba(255,255,255,0.035);
+
+        }
+
+
+        .info-item small {
+
+            color: var(--neon);
+
+            display: block;
+
+            margin-bottom: 4px;
+
+        }
+
+
+        /* ================= EDUCATION ================= */
+
+        .timeline {
+
+            position: relative;
+
+            margin-left: 10px;
+
+            border-left:
+                1px solid
+                color-mix(
+                    in srgb,
+                    var(--neon) 40%,
+                    transparent
+                );
+
+        }
+
+
+        .timeline-item {
+
+            position: relative;
+
+            padding: 0 0 35px 35px;
+
+        }
+
+
+        .timeline-item::before {
+
+            content: "";
+
+            position: absolute;
+
+            left: -7px;
+
+            top: 5px;
+
+            width: 13px;
+
+            height: 13px;
+
+            border-radius: 50%;
+
+            background: var(--neon);
+
+            box-shadow:
+                0 0 15px var(--neon);
+
+        }
+
+
+        .timeline-item h3 {
+
+            font-size: 21px;
+
+            margin-bottom: 7px;
+
+        }
+
+
+        .timeline-item .institution {
+
+            color: var(--neon);
+
+            margin-bottom: 7px;
+
+        }
+
+
+        .timeline-item p {
+
+            color: var(--muted);
+
+            line-height: 1.6;
+
+        }
+
+
+        /* ================= PROJECTS ================= */
+
+        .projects-grid {
+
+            display: grid;
+
+            grid-template-columns:
+                repeat(2, 1fr);
+
+            gap: 25px;
+
+        }
+
+
+        .project-card {
+
+            overflow: hidden;
+
+        }
+
+
+        .project-image {
+
+            width: 100%;
+
+            height: 220px;
+
+            object-fit: cover;
+
+            border-radius: 14px;
+
+            margin-bottom: 20px;
+
+            border:
+                1px solid var(--border);
+
+        }
+
+
+        .project-placeholder {
+
+            height: 220px;
+
+            border-radius: 14px;
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: center;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    color-mix(
+                        in srgb,
+                        var(--neon) 15%,
+                        transparent
+                    ),
+                    rgba(255,255,255,0.025)
+                );
+
+            font-size: 50px;
+
+            margin-bottom: 20px;
+
+        }
+
+
+        .project-card h3 {
+
+            font-size: 23px;
+
+            margin-bottom: 12px;
+
+        }
+
+
+        .project-card p {
+
+            color: var(--muted);
+
+            line-height: 1.7;
+
+            margin-bottom: 12px;
+
+        }
+
+
+        .tech {
+
+            color: var(--neon);
+
+            font-size: 14px;
+
+            margin-bottom: 20px !important;
+
+        }
+
+
+        .project-links {
+
+            display: flex;
+
+            gap: 10px;
+
+            flex-wrap: wrap;
+
+        }
+
+
+        .small-btn {
+
+            padding: 9px 15px;
+
+            border-radius: 8px;
+
+            border: 1px solid
+                color-mix(
+                    in srgb,
+                    var(--neon) 45%,
+                    transparent
+                );
+
+            color: var(--neon);
+
+            text-decoration: none;
+
+            font-size: 13px;
+
+        }
+
+
+        .small-btn:hover {
+
+            background:
+                color-mix(
+                    in srgb,
+                    var(--neon) 12%,
+                    transparent
+                );
+
+        }
+
+
+        /* ================= SKILLS ================= */
+
+        .skills-list {
+
+            display: flex;
+
+            flex-wrap: wrap;
+
+            gap: 12px;
+
+        }
+
+
+        .skill {
+
+            padding: 10px 17px;
+
+            border-radius: 25px;
+
+            background:
+                color-mix(
+                    in srgb,
+                    var(--neon) 9%,
+                    transparent
+                );
+
+            border:
+                1px solid
+                color-mix(
+                    in srgb,
+                    var(--neon) 30%,
+                    transparent
+                );
+
+            color: #e8e4ef;
+
+            transition: 0.3s;
+
+        }
+
+
+        .skill:hover {
+
+            color: var(--neon);
+
+            border-color: var(--neon);
+
+            box-shadow:
+                0 0 15px
+                color-mix(
+                    in srgb,
+                    var(--neon) 25%,
+                    transparent
+                );
+
+        }
+
+
+        /* ================= CERTIFICATES ================= */
+
+        .cert-grid {
+
+            display: grid;
+
+            grid-template-columns:
+                repeat(2, 1fr);
+
+            gap: 20px;
+
+        }
+
+
+        .certificate-image {
+
+            width: 100%;
+
+            height: 230px;
+
+            object-fit: contain;
+
+            background: rgba(0,0,0,0.3);
+
+            border-radius: 12px;
+
+            margin-bottom: 18px;
+
+        }
+
+
+        .certificate-card h3 {
+
+            margin-bottom: 8px;
+
+        }
+
+
+        .certificate-card p {
+
+            color: var(--muted);
+
+            margin-bottom: 8px;
+
+        }
+
+
+        /* ================= RESUME ================= */
+
+        .resume-box {
+
+            text-align: center;
+
+        }
+
+
+        .resume-box p {
+
+            color: var(--muted);
+
+            margin-bottom: 25px;
+
+        }
+
+
+        /* ================= CONTACT ================= */
+
+        .contact-card {
+
+            text-align: center;
+
+            padding: 55px 30px;
+
+        }
+
+
+        .contact-card h2 {
+
+            font-family: "Space Grotesk", sans-serif;
+
+            font-size: 38px;
+
+            margin-bottom: 15px;
+
+        }
+
+
+        .contact-card p {
+
+            color: var(--muted);
+
+            max-width: 600px;
+
+            margin: 0 auto 25px;
+
+            line-height: 1.7;
+
+        }
+
+
+        /* ================= FOOTER ================= */
+
+        footer {
+
+            padding: 35px 20px;
+
+            text-align: center;
+
+            border-top:
+                1px solid var(--border);
+
+            color: #777483;
+
+        }
+
+
+        footer span {
+
+            color: var(--neon);
+
+        }
+
+
+        /* ================= MOBILE ================= */
+
+        @media (max-width: 800px) {
+
+            .navbar {
+
+                padding: 0 5%;
+
+            }
+
+
+            .nav-links {
+
+                display: none;
+
+            }
+
+
+            section {
+
+                width: 90%;
+
+                padding: 80px 0;
+
+            }
+
+
+            .hero h1 {
+
+                font-size: 54px;
+
+            }
+
+
+            .about-grid,
+
+            .projects-grid,
+
+            .cert-grid {
+
+                grid-template-columns: 1fr;
+
+            }
+
+
+            .section-title h2 {
+
+                font-size: 34px;
+
+            }
+
+
+        }
+
+
+        @media (max-width: 500px) {
+
+            .hero h1 {
+
+                font-size: 43px;
+
+            }
+
+
+            .hero h2 {
+
+                font-size: 19px;
+
+            }
+
+
+            .glass {
+
+                padding: 22px;
+
+            }
+
+
+            .project-image,
+
+            .project-placeholder {
+
+                height: 190px;
+
+            }
+
+        }
+
+   
+    
+.profile-photo {
+    width: 180px;
+    height: 180px;
+    margin: 0 auto 30px;
+    border-radius: 50%;
+    padding: 5px;
+    background: var(--neon);
+    box-shadow:
+        0 0 20px var(--neon),
+        0 0 45px var(--neon);
+    animation: profileGlow 3s ease-in-out infinite;
+}
+
+.profile-photo img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 50%;
+    display: block;
+    border: 4px solid #000;
+}
+
+@keyframes profileGlow {
+    0%, 100% {
+        box-shadow:
+            0 0 20px var(--neon),
+            0 0 45px var(--neon);
+    }
+
+    50% {
+        box-shadow:
+            0 0 30px var(--neon),
+            0 0 70px var(--neon);
+    }
+}
+ </style>
+</head>
+
+
+<body>
+
+
+<!-- ================= BACKGROUND ================= -->
+
+<div class="background">
+
+    <div class="grid"></div>
+
+    <div class="orb one"></div>
+
+    <div class="orb two"></div>
+
+    <div class="orb three"></div>
+
+</div>
+
+
+<!-- ================= NAVBAR ================= -->
+
+<nav class="navbar">
+
+    <div class="logo">
+        Portfolio.
+    </div>
+
+    <div class="nav-links">
+
+        <a href="#home">Home</a>
+
+        <a href="#about">About</a>
+
+        <a href="#education">Education</a>
+
+        <a href="#projects">Projects</a>
+
+        <a href="#skills">Skills</a>
+        
+        <a href="#experience">Experience</a>
+
+        <a href="#contact">Contact</a>
+
+    </div>
+
+</nav>
+
+
+<main>
+
+
+<!-- ================= HERO ================= -->
+
+<section class="hero" id="home">
+
+    <div class="hero-content">
+        {% if profile and profile["profile_image"] %}
+    <div class="profile-photo">
+        <img src="{{ url_for('static', filename='images/profiles/' + profile['profile_image']) }}"
+             alt="Profile Photo">
+    </div>
+{% endif %}
+
+        <div class="badge">
+            ✦ Available for Internship / Opportunities
+        </div>
+
+
+        <h1>
+
+            Hi, I'm
+
+            <span>
+                {{ profile["full_name"] if profile else "Your Name" }}
+            </span>
+
+        </h1>
+
+
+        <h2>
+            B.Tech Artificial Intelligence & Data Science
+        </h2>
+
+
+        <p>
+
+            {{ profile["about"] if profile
+               else "Welcome to my professional portfolio." }}
+
+        </p>
+
+
+        <div class="hero-buttons">
+
+            <a href="#projects"
+               class="btn btn-primary">
+                View My Work →
+            </a>
+
+
+            {% if resume %}
+
+            <a href="{{ url_for(
+                'static',
+                filename='images/resumes/' + resume['resume_file']
+            ) }}"
+               target="_blank"
+               class="btn btn-outline">
+
+                View Resume
+
+            </a>
+
+            {% endif %}
+
+        </div>
+
+
+        <!-- SOCIAL -->
+
+        {% if social %}
+
+        <div class="social">
+
+            {% if social["linkedin"] %}
+
+            <a href="{{ social['linkedin'] }}"
+               target="_blank"
+               title="LinkedIn">
+
+                in
+
+            </a>
+
+            {% endif %}
+
+
+            {% if social["github"] %}
+
+            <a href="{{ social['github'] }}"
+               target="_blank"
+               title="GitHub">
+
+                GH
+
+            </a>
+
+            {% endif %}
+
+
+            {% if social["email"] %}
+
+            <a href="mailto:{{ social['email'] }}"
+               title="Email">
+
+                @
+
+            </a>
+
+            {% endif %}
+
+        </div>
+
+        {% endif %}
+
+    </div>
+
+</section>
+
+
+
+<!-- ================= ABOUT ================= -->
+
+<section id="about">
+
+    <div class="section-title">
+
+        <span>01 — About</span>
+
+        <h2>About Me</h2>
+
+    </div>
+
+
+    {% if profile %}
+
+    <div class="about-grid">
+
+
+        <div class="glass">
+
+            <p class="about-text">
+
+                {{ profile["about"] }}
+
+            </p>
+
+        </div>
+
+
+        <div class="glass contact-info">
+
+
+            {% if profile["full_name"] %}
+
+            <div class="info-item">
+
+                <small>Name</small>
+
+                {{ profile["full_name"] }}
+
+            </div>
+
+            {% endif %}
+
+
+            {% if profile["phone"] %}
+
+            <div class="info-item">
+
+                <small>Phone</small>
+
+                {{ profile["phone"] }}
+
+            </div>
+
+            {% endif %}
+
+
+            {% if profile["location"] %}
+
+            <div class="info-item">
+
+                <small>Location</small>
+
+                {{ profile["location"] }}
+
+            </div>
+
+            {% endif %}
+
+        </div>
+
+
+    </div>
+
+    {% endif %}
+
+</section>
+
+
+
+<!-- ================= EDUCATION ================= -->
+
+<section id="education">
+
+    <div class="section-title">
+
+        <span>02 — Education</span>
+
+        <h2>My Education</h2>
+
+    </div>
+
+
+    <div class="timeline">
+
+
+        {% if education %}
+
+
+        {% for edu in education %}
+
+        <div class="timeline-item">
+
+            <h3>
+                {{ edu["degree"] }}
+            </h3>
+
+
+            <div class="institution">
+
+                {{ edu["institution"] }}
+
+            </div>
+
+
+            <p>
+
+                {% if edu["year"] %}
+                    {{ edu["year"] }}
+                {% endif %}
+
+                {% if edu["grade"] %}
+                    · {{ edu["grade"] }}
+                {% endif %}
+
+            </p>
+
+        </div>
+
+        {% endfor %}
+
+
+        {% else %}
+
+        <div class="glass">
+
+            No education details added yet.
+
+        </div>
+
+        {% endif %}
+
+
+    </div>
+
+</section>
+
+
+<!-- ================= EXPERIENCE ================= -->
+
+<section id="experience">
+
+    <div class="section-title">
+
+        <span>03 — Experience</span>
+
+        <h2>My Professional Journey</h2>
+
+    </div>
+
+    <div class="projects-grid">
+
+        {% if experiences %}
+
+            {% for exp in experiences %}
+
+            <div class="glass">
+
+                <h3>
+                    {{ exp["role"] }}
+                </h3>
+
+                <h4>
+                    {{ exp["company"] }}
+                </h4>
+
+                <p class="experience-date">
+                    {{ exp["start_date"] }}
+                    —
+                    {{ exp["end_date"] if exp["end_date"] else "Present" }}
+                </p>
+
+                <p>
+                    {{ exp["description"] }}
+                </p>
+
+            </div>
+
+            {% endfor %}
+
+        {% else %}
+
+            <div class="glass">
+
+                <p>
+                    No experience added yet.
+                </p>
+
+            </div>
+
+        {% endif %}
+
+    </div>
+
+</section>
+<!-- ================= PROJECTS ================= -->
+
+<section id="projects">
+
+    <div class="section-title">
+
+        <span>03 — Projects</span>
+
+        <h2>Things I've Built</h2>
+
+    </div>
+
+
+    <div class="projects-grid">
+
+
+        {% if projects %}
+
+
+        {% for project in projects %}
+
+        <div class="glass project-card">
+
+
+            {% if project["project_image"] %}
+
+            <img
+                class="project-image"
+
+                src="{{ url_for(
+                    'static',
+                    filename='images/projects/' + project['project_image']
+                ) }}"
+
+                alt="{{ project['project_name'] }}"
+            >
+
+            {% else %}
+
+            <div class="project-placeholder">
+                🚀
+            </div>
+
+            {% endif %}
+
+
+            <h3>
+                {{ project["project_name"] }}
+            </h3>
+
+
+            {% if project["description"] %}
+
+            <p>
+                {{ project["description"] }}
+            </p>
+
+            {% endif %}
+
+
+            {% if project["technologies"] %}
+
+            <p class="tech">
+
+                🛠️ {{ project["technologies"] }}
+
+            </p>
+
+            {% endif %}
+
+
+            <div class="project-links">
+
+
+                {% if project["github_link"] %}
+
+                <a
+                    href="{{ project['github_link'] }}"
+                    target="_blank"
+                    class="small-btn"
+                >
+
+                    GitHub ↗
+
+                </a>
+
+                {% endif %}
+
+
+                {% if project["live_link"] %}
+
+                <a
+                    href="{{ project['live_link'] }}"
+                    target="_blank"
+                    class="small-btn"
+                >
+
+                    Live Demo ↗
+
+                </a>
+
+                {% endif %}
+
+
+            </div>
+
+
+        </div>
+
+        {% endfor %}
+
+
+        {% else %}
+
+        <div class="glass">
+
+            No projects added yet.
+
+        </div>
+
+        {% endif %}
+
+
+    </div>
+
+</section>
+
+
+
+<!-- ================= SKILLS ================= -->
+
+<section id="skills">
+
+    <div class="section-title">
+
+        <span>04 — Skills</span>
+
+        <h2>Technical Skills</h2>
+
+    </div>
+
+
+    <div class="glass">
+
+
+        {% if skills %}
+
+        <div class="skills-list">
+
+
+            {% for skill in skills %}
+
+            <div class="skill">
+
+                {{ skill["skill_name"] }}
+
+            </div>
+
+            {% endfor %}
+
+
+        </div>
+
+
+        {% else %}
+
+        <p style="color:#aaa;">
+            No skills added yet.
+        </p>
+
+        {% endif %}
+
+
+    </div>
+
+</section>
+
+
+
+<!-- ================= CERTIFICATES ================= -->
+
+<section id="certificates">
+
+    <div class="section-title">
+
+        <span>05 — Achievements</span>
+
+        <h2>Certifications</h2>
+
+    </div>
+
+
+    <div class="cert-grid">
+
+
+        {% if certificates %}
+
+
+        {% for certificate in certificates %}
+
+        <div class="glass certificate-card">
+
+
+            {% if certificate["certificate_image"] %}
+
+            <img
+
+                src="{{ url_for(
+                    'static',
+                    filename='images/certificates/' +
+                    certificate['certificate_image']
+                ) }}"
+
+                class="certificate-image"
+
+                alt="Certificate"
+
+            >
+
+            {% endif %}
+
+
+            <h3>
+
+                📜 {{ certificate["certificate_name"] }}
+
+            </h3>
+
+
+            {% if certificate["issuing_organization"] %}
+
+            <p>
+
+                {{ certificate["issuing_organization"] }}
+
+            </p>
+
+            {% endif %}
+
+
+            {% if certificate["issue_date"] %}
+
+            <p>
+
+                {{ certificate["issue_date"] }}
+
+            </p>
+
+            {% endif %}
+
+
+            {% if certificate["certificate_link"] %}
+
+            <a
+
+                href="{{ certificate['certificate_link'] }}"
+
+                target="_blank"
+
+                class="small-btn"
+
+            >
+
+                View Certificate ↗
+
+            </a>
+
+            {% endif %}
+
+
+        </div>
+
+        {% endfor %}
+
+
+        {% else %}
+
+        <div class="glass">
+
+            No certificates added yet.
+
+        </div>
+
+        {% endif %}
+
+
+    </div>
+
+</section>
+
+
+
+<!-- ================= RESUME ================= -->
+
+<section>
+
+    <div class="glass resume-box">
+
+
+        <div class="section-title">
+
+            <span>06 — Resume</span>
+
+            <h2>My Resume</h2>
+
+        </div>
+
+
+        {% if resume %}
+
+        <p>
+            View or download my latest resume.
+        </p>
+
+
+        <a
+
+            href="{{ url_for(
+                'static',
+                filename='images/resumes/' + resume['resume_file']
+            ) }}"
+
+            target="_blank"
+
+            class="btn btn-primary"
+
+        >
+
+            📄 View Resume
+
+        </a>
+
+
+        {% else %}
+
+        <p>
+            Resume not uploaded yet.
+        </p>
+
+        {% endif %}
+
+
+    </div>
+
+</section>
+
+
+
+<!-- ================= CONTACT ================= -->
+
+<section id="contact">
+
+    <div class="glass contact-card">
+
+
+        <div class="section-title">
+
+            <span>07 — Contact</span>
+
+            <h2>Let's Connect</h2>
+
+        </div>
+
+
+        <p>
+
+            Interested in working together or discussing
+            a project? Feel free to reach out.
+
+        </p>
+
+
+        {% if social and social["email"] %}
+
+        <a
+
+            href="mailto:{{ social['email'] }}"
+
+            class="btn btn-primary"
+
+        >
+
+            📧 Contact Me
+
+        </a>
+
+        {% endif %}
+
+
+        {% if social %}
+
+        <div class="social">
+
+
+            {% if social["linkedin"] %}
+
+            <a
+
+                href="{{ social['linkedin'] }}"
+
+                target="_blank"
+
+            >
+
+                in
+
+            </a>
+
+            {% endif %}
+
+
+            {% if social["github"] %}
+
+            <a
+
+                href="{{ social['github'] }}"
+
+                target="_blank"
+
+            >
+
+                GH
+
+            </a>
+
+            {% endif %}
+
+
+        </div>
+
+        {% endif %}
+
+
+    </div>
+
+</section>
+
+
+</main>
+
+
+
+<!-- ================= FOOTER ================= -->
+
+<footer>
+
+    <p>
+
+        © 2026
+
+        <span>
+            {{ profile["full_name"] if profile else "My Portfolio" }}
+        </span>
+
+        · Created with Portfolio Publisher
+
+    </p>
+
+</footer>
+
+
+</body>
+
+</html>

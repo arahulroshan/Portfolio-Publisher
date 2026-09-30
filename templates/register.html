@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Register - Portfolio Publisher</title>
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+
+<body>
+
+    <div class="auth-container">
+
+        <div class="auth-box">
+
+            <h1>Create Account</h1>
+
+            <p class="auth-subtitle">
+                Join Portfolio Publisher and build your professional portfolio.
+            </p>
+
+            <form method="POST">
+
+                <label>Username</label>
+                <input type="text" name="username" placeholder="Enter username" required>
+
+                <label>Email</label>
+                <input type="email" name="email" placeholder="Enter email" required>
+
+                <label>Password</label>
+                <input type="password" name="password" placeholder="Enter password" required>
+
+                <label>Confirm Password</label>
+                <input type="password" name="confirm_password" placeholder="Confirm password" required>
+
+                <button type="submit">Create Account</button>
+
+            </form>
+
+            <p class="login-text">
+                Already have an account?
+                <a href="/login">Login</a>
+            </p>
+
+        </div>
+
+    </div>
+
+</body>
+</html>
+@app.route("/login", methods=["GET", "POST"])
+def login():
+
+    if request.method == "POST":
+
+        username = request.form["username"]
+        password = request.form["password"]
+
+        conn = get_db()
+
+        user = conn.execute(
+            "SELECT * FROM users WHERE username = ?",
+            (username,)
+        ).fetchone()
+
+        conn.close()
+
+        if user and check_password_hash(user["password"], password):
+
+            session["user_id"] = user["id"]
+            session["username"] = user["username"]
+
+            return "Login successful!"
+
+        return "Invalid username or password!"
+
+    return render_template("login.html")

@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Dashboard - Portfolio Publisher</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/style.css') }}">
+
+</head>
+
+<body>
+
+    <!-- ================= NAVBAR ================= -->
+
+    <nav class="navbar">
+
+        <div class="logo">
+            Portfolio Publisher
+        </div>
+
+        <div class="nav-links">
+
+            <a href="/">
+                Home
+            </a>
+
+            <a href="/logout">
+                Logout
+            </a>
+
+        </div>
+
+    </nav>
+
+
+    <!-- ================= DASHBOARD ================= -->
+
+    <section class="dashboard">
+
+        <div class="dashboard-header">
+
+            <h1>
+                Welcome, {{ session["username"] }} 👋
+            </h1>
+
+            <p>
+                Create and manage your professional portfolio.
+            </p>
+
+        </div>
+
+
+        <div class="dashboard-grid">
+
+
+            <!-- ================= PROFILE ================= -->
+
+            <div class="dashboard-card">
+
+                <div class="card-icon">
+                    👤
+                </div>
+
+                <h2>
+                    Profile
+                </h2>
+
+                <p>
+                    Add your personal information.
+                </p>
+
+                <a href="{{ url_for('profile') }}">
+                    Manage Profile
+                </a>
+
+            </div>
+
+
+            <!-- ================= EDUCATION ================= -->
+
+            <div class="dashboard-card">
+
+                <div class="card-icon">
+                    🎓
+                </div>
+
+                <h2>
+                    Education
+                </h2>
+
+                <p>
+                    Add your academic details.
+                </p>
+
+                <a href="{{ url_for('education') }}">
+                    Add Education
+                </a>
+
+            </div>
+
+
+            <!-- ================= SKILLS ================= -->
+
+            <div class="dashboard-card">
+
+                <div class="card-icon">
+                    🛠️
+                </div>
+
+                <h2>
+                    Skills
+                </h2>
+
+                <p>
+                    Showcase your technical skills.
+                </p>
+
+                <a href="{{ url_for('skills') }}">
+                    Manage Skills
+                </a>
+
+            </div>
+
+
+            <!-- ================= PROJECTS ================= -->
+
+            <div class="dashboard-card">
+
+                <div class="card-icon">
+                    💼
+                </div>
+
+                <h2>
+                    Projects
+                </h2>
+
+                <p>
+                    Display your projects and work.
+                </p>
+
+                <a href="{{ url_for('projects') }}">
+                    Add Projects
+                </a>
+
+            </div>
+
+
+            <!-- ================= CERTIFICATES ================= -->
+
+            <div class="dashboard-card">
+
+                <div class="card-icon">
+                    📜
+                </div>
+
+                <h2>
+                    Certificates
+                </h2>
+
+                <p>
+                    Add your achievements.
+                </p>
+
+                <a href="{{ url_for('certificates') }}">
+                    View Certificates
+                </a>
+
+            </div>
+
+
+            <!-- ================= EXPERIENCE ================= -->
+
+            <div class="dashboard-card">
+
+                <div class="card-icon">
+                    💼
+                </div>
+
+                <h2>
+                    Experience
+                </h2>
+
+                <p>
+                    Add your internships, work experience and training.
+                </p>
+
+                <a href="{{ url_for('experience') }}">
+                    Manage Experience
+                </a>
+
+            </div>
+
+
+            <!-- ================= RESUME ================= -->
+
+            <div class="dashboard-card">
+
+                <div class="card-icon">
+                    📄
+                </div>
+
+                <h2>
+                    Resume
+                </h2>
+
+                <p>
+                    Upload and manage your resume.
+                </p>
+
+                <a href="{{ url_for('resume') }}">
+                    Manage Resume
+                </a>
+
+            </div>
+
+
+            <!-- ================= SOCIAL LINKS ================= -->
+
+            <div class="dashboard-card">
+
+                <div class="card-icon">
+                    🔗
+                </div>
+
+                <h2>
+                    Social Links
+                </h2>
+
+                <p>
+                    Manage your LinkedIn, GitHub and portfolio links.
+                </p>
+
+                <a href="{{ url_for('social_links') }}">
+                    Manage Links
+                </a>
+
+            </div>
+
+
+            <!-- ================= CUSTOMIZE PORTFOLIO ================= -->
+
+            <div class="dashboard-card">
+
+                <div class="card-icon">
+                    🎨
+                </div>
+
+                <h2>
+                    Customize Portfolio
+                </h2>
+
+                <p>
+                    Choose your portfolio colours and personalize your website.
+                </p>
+
+                <a href="{{ url_for('theme_settings') }}">
+                    Customize Theme
+                </a>
+
+            </div>
+
+
+            <!-- ================= PUBLISH PORTFOLIO ================= -->
+
+            <div class="dashboard-card">
+
+                <div class="card-icon">
+                    🌐
+                </div>
+
+                <h2>
+                    Publish Portfolio
+                </h2>
+
+                <p>
+                    Make your portfolio publicly available.
+                </p>
+
+                <a href="{{ url_for('publish_portfolio') }}">
+                    Publish Portfolio
+                </a>
+
+            </div>
+<!-- ================= AI PORTFOLIO ASSISTANT ================= -->
+
+<div class="dashboard-card">
+
+    <div class="card-icon">
+        🤖
+    </div>
+
+    <h2>
+        AI Portfolio Assistant
+    </h2>
+
+    <p>
+        Let visitors ask questions about your portfolio using AI.
+    </p>
+
+    <a href="{{ url_for('chatbot') }}">
+        Open AI Assistant
+    </a>
+
+</div>
+
+        </div>
+
+    </section>
+
+</body>
+
+</html>

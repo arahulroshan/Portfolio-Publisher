@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>My Experience - Portfolio Publisher</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/style.css') }}">
+
+    <style>
+
+        .experience-box {
+            max-width: 750px;
+            margin: 50px auto;
+            padding: 35px;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(192,132,252,0.25);
+            border-radius: 20px;
+            box-shadow: 0 0 30px rgba(139,92,246,0.15);
+        }
+
+        .experience-box h1 {
+            text-align: center;
+            color: #c084fc;
+            margin-bottom: 10px;
+        }
+
+        .experience-subtitle {
+            text-align: center;
+            color: #aaa7b8;
+            margin-bottom: 30px;
+        }
+
+        .experience-box label {
+            display: block;
+            margin-top: 18px;
+            margin-bottom: 7px;
+            color: #ffffff;
+        }
+
+        .experience-box input,
+        .experience-box textarea {
+            width: 100%;
+            padding: 13px;
+            border-radius: 10px;
+            border: 1px solid rgba(192,132,252,0.25);
+            background: rgba(0,0,0,0.35);
+            color: white;
+            outline: none;
+            box-sizing: border-box;
+        }
+
+        .experience-box textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+
+        .experience-box input:focus,
+        .experience-box textarea:focus {
+            border-color: #c084fc;
+            box-shadow: 0 0 12px rgba(192,132,252,0.3);
+        }
+
+        .save-experience {
+            width: 100%;
+            margin-top: 25px;
+            padding: 14px;
+            border: none;
+            border-radius: 10px;
+            background: linear-gradient(90deg, #7c3aed, #c026d3);
+            color: white;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .experience-list {
+            max-width: 750px;
+            margin: 30px auto 60px;
+        }
+
+        .experience-card {
+            margin-top: 20px;
+            padding: 25px;
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(192,132,252,0.2);
+            border-radius: 16px;
+        }
+
+        .experience-card h2 {
+            color: #c084fc;
+            margin-bottom: 5px;
+        }
+
+        .experience-card h3 {
+            color: white;
+            margin-bottom: 8px;
+        }
+
+        .experience-date {
+            color: #aaa7b8;
+            font-size: 14px;
+        }
+
+        .experience-card p {
+            color: #ddd;
+            line-height: 1.6;
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+    <div class="experience-box">
+
+        <h1>💼 My Experience</h1>
+
+        <p class="experience-subtitle">
+            Add your internship, work experience or training
+        </p>
+
+        <form method="POST">
+
+            <label>Company / Organization</label>
+
+            <input type="text"
+                   name="company"
+                   placeholder="Enter company name"
+                   required>
+
+
+            <label>Role / Position</label>
+
+            <input type="text"
+                   name="role"
+                   placeholder="e.g. AI/ML Intern"
+                   required>
+
+
+            <label>Start Date</label>
+
+            <input type="date"
+                   name="start_date"
+                   required>
+
+
+            <label>End Date</label>
+
+            <input type="date"
+                   name="end_date">
+
+
+            <label>Description</label>
+
+            <textarea name="description"
+                      placeholder="Describe your work, responsibilities and achievements..."
+                      required></textarea>
+
+
+            <button type="submit"
+                    class="save-experience">
+                Save Experience
+            </button>
+
+        </form>
+
+    </div>
+
+
+    {% if experiences %}
+
+    <div class="experience-list">
+
+        <h1 style="text-align:center; color:#c084fc;">
+            Your Experiences
+        </h1>
+
+        {% for exp in experiences %}
+
+        <div class="experience-card">
+
+            <h2>{{ exp["company"] }}</h2>
+
+            <h3>{{ exp["role"] }}</h3>
+
+            <div class="experience-date">
+                {{ exp["start_date"] }}
+                -
+                {{ exp["end_date"] if exp["end_date"] else "Present" }}
+            </div>
+
+            <p>
+                {{ exp["description"] }}
+            </p>
+
+        </div>
+
+        {% endfor %}
+
+    </div>
+
+    {% endif %}
+
+</body>
+
+</html>

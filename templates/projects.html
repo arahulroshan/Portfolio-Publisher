@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>My Projects - Portfolio Publisher</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/style.css') }}">
+
+</head>
+
+
+<body>
+
+    <!-- ================= NAVBAR ================= -->
+
+    <nav class="navbar">
+
+        <div class="logo">
+            Portfolio Publisher
+        </div>
+
+        <div class="nav-links">
+
+            <a href="/dashboard">
+                Dashboard
+            </a>
+
+            <a href="/logout">
+                Logout
+            </a>
+
+        </div>
+
+    </nav>
+
+
+    <!-- ================= PROJECT SECTION ================= -->
+
+    <section class="dashboard">
+
+
+        <!-- ================= PAGE HEADER ================= -->
+
+        <div class="dashboard-header">
+
+            <h1>
+                My Projects 💼
+            </h1>
+
+            <p>
+                Add and showcase your projects in your professional portfolio.
+            </p>
+
+        </div>
+
+
+        <!-- ================= ADD PROJECT FORM ================= -->
+
+        <div class="auth-box project-form-box">
+
+            <h2>
+                Add New Project
+            </h2>
+
+
+            <form method="POST"
+                  enctype="multipart/form-data">
+
+
+                <!-- Project Name -->
+
+                <label>
+                    Project Name
+                </label>
+
+                <input
+                    type="text"
+                    name="project_name"
+                    placeholder="Example: Smart Attendance Management System"
+                    required
+                >
+
+
+                <!-- Description -->
+
+                <label>
+                    Project Description
+                </label>
+
+                <textarea
+                    name="description"
+                    placeholder="Describe your project..."
+                    rows="5"
+                    required
+                ></textarea>
+
+
+                <!-- Technologies -->
+
+                <label>
+                    Technologies Used
+                </label>
+
+                <input
+                    type="text"
+                    name="technologies"
+                    placeholder="Example: Python, Flask, SQLite, HTML, CSS"
+                    required
+                >
+
+
+                <!-- GitHub Link -->
+
+                <label>
+                    GitHub Link
+                </label>
+
+                <input
+                    type="url"
+                    name="github_link"
+                    placeholder="https://github.com/username/project"
+                >
+
+
+                <!-- Live Demo Link -->
+
+                <label>
+                    Live Demo Link
+                </label>
+
+                <input
+                    type="url"
+                    name="live_link"
+                    placeholder="https://your-project.com"
+                >
+
+
+                <!-- Project Image -->
+
+                <label>
+                    Project Image
+                </label>
+
+                <input
+                    type="file"
+                    name="project_image"
+                    accept="image/*"
+                >
+<label>Project Screenshots</label>
+
+<input
+    type="file"
+    name="project_images"
+    accept="image/*"
+    multiple
+>
+
+                <!-- Submit Button -->
+
+                <button type="submit">
+                    🚀 Add Project
+                </button>
+
+            </form>
+
+        </div>
+
+
+        <!-- ================= PROJECT LIST HEADER ================= -->
+
+        <div class="dashboard-header project-list-title">
+
+            <h1>
+                My Projects
+            </h1>
+
+            <p>
+                Your saved projects will appear below.
+            </p>
+
+        </div>
+
+
+        <!-- ================= PROJECT GRID ================= -->
+
+        <div class="project-grid">
+
+
+            {% if projects %}
+
+
+                {% for project in projects %}
+
+
+                    <!-- ================= PROJECT CARD ================= -->
+
+                    <div class="project-card">
+
+
+                        <!-- ================= PROJECT IMAGE ================= -->
+
+                        {% if project["project_image"] %}
+
+                            <img
+                                src="{{ url_for(
+                                    'static',
+                                    filename='images/projects/' + project['project_image']
+                                ) }}"
+                                alt="{{ project['project_name'] }}"
+                                class="project-image"
+                            >
+
+                        {% else %}
+
+                            <div class="project-image-placeholder">
+
+                                💼
+
+                            </div>
+
+                        {% endif %}
+
+
+                        <!-- ================= PROJECT CONTENT ================= -->
+
+                        <div class="project-content">
+
+
+                            <!-- Project Name -->
+
+                            <h2>
+                                {{ project["project_name"] }}
+                            </h2>
+
+
+                            <!-- Description -->
+
+                            <p class="project-description">
+
+                                {{ project["description"] }}
+
+                            </p>
+
+
+                            <!-- Technologies -->
+
+                            <p class="project-tech">
+
+                                <strong>
+                                    Technologies:
+                                </strong>
+
+                                {{ project["technologies"] }}
+
+                            </p>
+
+
+                            <!-- ================= PROJECT BUTTONS ================= -->
+
+                            <div class="project-buttons">
+
+
+                                <!-- GitHub Button -->
+
+                                {% if project["github_link"] %}
+
+                                    <a
+                                        href="{{ project['github_link'] }}"
+                                        target="_blank"
+                                        class="project-btn"
+                                    >
+                                        GitHub
+                                    </a>
+
+                                {% endif %}
+
+
+                                <!-- Live Demo Button -->
+
+                                {% if project["live_link"] %}
+
+                                    <a
+                                        href="{{ project['live_link'] }}"
+                                        target="_blank"
+                                        class="project-btn"
+                                    >
+                                        Live Demo
+                                    </a>
+
+                                {% endif %}
+
+<!-- View Project Button -->
+
+<a
+    href="{{ url_for(
+        'project_details',
+        project_id=project['id']
+    ) }}"
+    class="project-btn"
+>
+    👁️ View Project
+</a>
+                                <!-- Edit Button -->
+
+                                <a
+                                    href="{{ url_for(
+                                        'edit_project',
+                                        project_id=project['id']
+                                    ) }}"
+                                    class="project-btn"
+                                >
+                                    ✏️ Edit
+                                </a>
+
+
+                                <!-- Delete Button -->
+
+                                <a
+                                    href="{{ url_for(
+                                        'delete_project',
+                                        project_id=project['id']
+                                    ) }}"
+                                    class="project-btn delete-btn"
+                                    onclick="return confirm(
+                                        'Are you sure you want to delete this project?'
+                                    );"
+                                >
+                                    🗑️ Delete
+                                </a>
+
+
+                            </div>
+
+
+                        </div>
+
+
+                    </div>
+
+
+                {% endfor %}
+
+
+            {% else %}
+
+
+                <!-- ================= NO PROJECTS ================= -->
+
+                <div class="no-projects">
+
+                    <h2>
+                        No Projects Yet 🚀
+                    </h2>
+
+                    <p>
+                        Add your first project using the form above.
+                    </p>
+
+                </div>
+
+
+            {% endif %}
+
+
+        </div>
+
+
+        <!-- ================= BACK TO DASHBOARD ================= -->
+
+        <div class="back-dashboard">
+
+            <a href="/dashboard">
+                ← Back to Dashboard
+            </a>
+
+        </div>
+
+
+    </section>
+
+
+</body>
+
+</html>

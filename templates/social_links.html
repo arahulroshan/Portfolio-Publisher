@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Social Links - Portfolio Publisher</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/style.css') }}">
+
+</head>
+
+<body>
+
+    <!-- NAVBAR -->
+
+    <nav class="navbar">
+
+        <div class="logo">
+            Portfolio Publisher
+        </div>
+
+        <div class="nav-links">
+
+            <a href="{{ url_for('dashboard') }}">
+                Dashboard
+            </a>
+
+            <a href="{{ url_for('logout') }}">
+                Logout
+            </a>
+
+        </div>
+
+    </nav>
+
+
+    <!-- SOCIAL LINKS -->
+
+    <section class="dashboard">
+
+        <div class="dashboard-header">
+
+            <h1>
+                Social Links 🔗
+            </h1>
+
+            <p>
+                Add your professional links.
+            </p>
+
+        </div>
+
+
+        <div class="auth-box project-form-box">
+
+            <h2>
+                Manage Social Links
+            </h2>
+
+            <form method="POST">
+
+                <label>
+                    LinkedIn
+                </label>
+
+                <input
+                    type="url"
+                    name="linkedin"
+                    value="{{ social['linkedin'] if social else '' }}"
+                    placeholder="https://www.linkedin.com/in/your-profile"
+                >
+
+
+                <label>
+                    GitHub
+                </label>
+
+                <input
+                    type="url"
+                    name="github"
+                    value="{{ social['github'] if social else '' }}"
+                    placeholder="https://github.com/your-username"
+                >
+
+
+                <label>
+                    Email
+                </label>
+
+                <input
+                    type="email"
+                    name="email"
+                    value="{{ social['email'] if social else '' }}"
+                    placeholder="your@email.com"
+                >
+
+
+                <label>
+                    Portfolio Website
+                </label>
+
+                <input
+                    type="url"
+                    name="portfolio"
+                    value="{{ social['portfolio'] if social else '' }}"
+                    placeholder="https://yourportfolio.com"
+                >
+
+
+                <button type="submit">
+                    💾 Save Social Links
+                </button>
+
+            </form>
+
+        </div>
+
+
+        <!-- BACK -->
+
+        <div class="back-dashboard">
+
+            <a href="{{ url_for('dashboard') }}">
+                ← Back to Dashboard
+            </a>
+
+        </div>
+
+    </section>
+
+</body>
+
+</html>

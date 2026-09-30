@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>My Skills - Portfolio Publisher</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/style.css') }}">
+
+</head>
+
+
+<body>
+
+
+    <!-- NAVBAR -->
+
+    <nav class="navbar">
+
+        <div class="logo">
+            Portfolio Publisher
+        </div>
+
+        <div class="nav-links">
+
+            <a href="/dashboard">
+                Dashboard
+            </a>
+
+            <a href="/logout">
+                Logout
+            </a>
+
+        </div>
+
+    </nav>
+
+
+
+    <!-- SKILLS SECTION -->
+
+    <div class="auth-container">
+
+        <div class="auth-box">
+
+
+            <h1>
+                My Skills 🛠️
+            </h1>
+
+
+            <p class="auth-subtitle">
+                Add and manage your technical skills
+            </p>
+
+
+
+            <!-- ADD SKILL -->
+
+            <form method="POST">
+
+                <label>
+                    Skill
+                </label>
+
+                <input
+                    type="text"
+                    name="skill_name"
+                    placeholder="Example: Python"
+                    required
+                >
+
+                <button type="submit">
+                    Add Skill
+                </button>
+
+            </form>
+
+
+
+            <hr>
+
+
+
+            <!-- SKILL LIST -->
+
+            <h2>
+                My Skills
+            </h2>
+
+
+            {% if skills %}
+
+                {% for skill in skills %}
+
+                    <div class="skill-item">
+
+                        <span>
+                            {{ skill["skill_name"] }}
+                        </span>
+
+
+                        <div>
+
+                            <!-- EDIT -->
+
+                            <a
+                                href="/edit-skill/{{ skill['id'] }}"
+                                class="skill-edit"
+                            >
+                                ✏️ Edit
+                            </a>
+
+
+                            <!-- DELETE -->
+
+                            <a
+                                href="/delete-skill/{{ skill['id'] }}"
+                                class="skill-delete"
+                                onclick="return confirm('Are you sure you want to delete this skill?');"
+                            >
+                                🗑️ Delete
+                            </a>
+
+                        </div>
+
+                    </div>
+
+                {% endfor %}
+
+            {% else %}
+
+                <p>
+                    No skills added yet.
+                </p>
+
+            {% endif %}
+
+
+        </div>
+
+    </div>
+
+
+</body>
+
+</html>

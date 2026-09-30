@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Edit Skill - Portfolio Publisher</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/style.css') }}">
+
+</head>
+
+<body>
+
+    <!-- ================= NAVBAR ================= -->
+
+    <nav class="navbar">
+
+        <div class="logo">
+            Portfolio Publisher
+        </div>
+
+        <div class="nav-links">
+
+            <a href="{{ url_for('dashboard') }}">
+                Dashboard
+            </a>
+
+            <a href="{{ url_for('logout') }}">
+                Logout
+            </a>
+
+        </div>
+
+    </nav>
+
+
+    <!-- ================= EDIT SKILL ================= -->
+
+    <section class="dashboard">
+
+        <div class="dashboard-header">
+
+            <h1>
+                Edit Skill ✏️
+            </h1>
+
+            <p>
+                Update your skill name.
+            </p>
+
+        </div>
+
+
+        <div class="auth-box project-form-box">
+
+            <h2>
+                Edit Skill
+            </h2>
+
+            <form method="POST">
+
+                <label>
+                    Skill Name
+                </label>
+
+                <input
+                    type="text"
+                    name="skill_name"
+                    value="{{ skill['skill_name'] }}"
+                    required
+                >
+
+                <button type="submit">
+                    💾 Update Skill
+                </button>
+
+            </form>
+
+        </div>
+
+
+        <!-- ================= BACK ================= -->
+
+        <div class="back-dashboard">
+
+            <a href="{{ url_for('skills') }}">
+                ← Back to Skills
+            </a>
+
+        </div>
+
+    </section>
+
+</body>
+
+</html>

@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Edit Project - Portfolio Publisher</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/style.css') }}">
+
+</head>
+
+<body>
+
+    <!-- NAVBAR -->
+
+    <nav class="navbar">
+
+        <div class="logo">
+            Portfolio Publisher
+        </div>
+
+        <div class="nav-links">
+
+            <a href="/dashboard">
+                Dashboard
+            </a>
+
+            <a href="/projects">
+                My Projects
+            </a>
+
+            <a href="/logout">
+                Logout
+            </a>
+
+        </div>
+
+    </nav>
+
+
+    <!-- EDIT PROJECT -->
+
+    <section class="dashboard">
+
+        <div class="dashboard-header">
+
+            <h1>
+                Edit Project ✏️
+            </h1>
+
+            <p>
+                Update your project information.
+            </p>
+
+        </div>
+
+
+        <div class="auth-box project-form-box">
+
+            <h2>
+                Update Project
+            </h2>
+
+
+            <form method="POST"
+                  enctype="multipart/form-data">
+
+
+                <!-- Project Name -->
+
+                <label>
+                    Project Name
+                </label>
+
+                <input
+                    type="text"
+                    name="project_name"
+                    value="{{ project['project_name'] }}"
+                    required
+                >
+
+
+                <!-- Description -->
+
+                <label>
+                    Project Description
+                </label>
+
+                <textarea
+                    name="description"
+                    rows="6"
+                    required
+                >{{ project['description'] }}</textarea>
+
+
+                <!-- Technologies -->
+
+                <label>
+                    Technologies Used
+                </label>
+
+                <input
+                    type="text"
+                    name="technologies"
+                    value="{{ project['technologies'] }}"
+                    required
+                >
+
+
+                <!-- GitHub Link -->
+
+                <label>
+                    GitHub Link
+                </label>
+
+                <input
+                    type="url"
+                    name="github_link"
+                    value="{{ project['github_link'] or '' }}"
+                >
+
+
+                <!-- Live Demo -->
+
+                <label>
+                    Live Demo Link
+                </label>
+
+                <input
+                    type="url"
+                    name="live_link"
+                    value="{{ project['live_link'] or '' }}"
+                >
+
+
+                <!-- Project Image -->
+
+                <label>
+                    Change Project Image
+                </label>
+
+                <input
+                    type="file"
+                    name="project_image"
+                    accept="image/*"
+                >
+
+
+                <!-- Save Button -->
+
+                <button type="submit">
+                    💾 Save Changes
+                </button>
+
+            </form>
+
+
+            <!-- Back -->
+
+            <div class="back-dashboard">
+
+                <a href="{{ url_for('projects') }}">
+                    ← Cancel & Back to Projects
+                </a>
+
+            </div>
+
+        </div>
+
+    </section>
+
+</body>
+
+</html> 
