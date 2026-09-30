@@ -6,36 +6,87 @@
 
     <title>Portfolio Publisher</title>
 
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 
 <body>
 
+    <!-- NAVBAR -->
     <nav class="navbar">
-        <div class="logo">Portfolio Publisher</div>
+
+        <div class="logo">
+            Portfolio Publisher
+        </div>
 
         <div class="nav-links">
-            <a href="#">Home</a>
-            <a href="#">About</a>
-            <a href="#">Login</a>
-            <a href="#" class="signup-btn">Get Started</a>
+
+            <a href="{{ url_for('index') }}">
+                Home
+            </a>
+
+            <a href="#about">
+                About
+            </a>
+
+            <a href="{{ url_for('login') }}">
+                Login
+            </a>
+
+            <a href="{{ url_for('register') }}"
+               class="signup-btn">
+                Get Started
+            </a>
+
         </div>
+
     </nav>
 
+
+    <!-- HERO -->
     <section class="hero">
 
         <div class="hero-content">
-            <h1>Build Your Professional Portfolio</h1>
+
+            <h1>
+                Build Your Professional Portfolio
+            </h1>
 
             <p>
                 Create, customize and publish your personal portfolio
                 easily in one place.
             </p>
 
-            <a href="#" class="main-btn">Create My Portfolio</a>
+            <a href="{{ url_for('register') }}"
+               class="main-btn">
+                Create My Portfolio
+            </a>
+
         </div>
 
     </section>
+
+
+    <!-- ABOUT -->
+    <section id="about" class="hero">
+
+        <div class="hero-content">
+
+            <h2>
+                About Portfolio Publisher
+            </h2>
+
+            <p>
+                Portfolio Publisher helps you create, customize and
+                publish your professional portfolio in one place.
+                Add your education, skills, projects, certificates,
+                experience and resume and share your portfolio easily.
+            </p>
+
+        </div>
+
+    </section>
+
 
 </body>
 </html>
