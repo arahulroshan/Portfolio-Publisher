@@ -901,5 +901,38 @@ body {
     .project-image {
         height: 190px;
     }
+    .back-dashboard {
+    text-align: center;
+    margin: 30px 0;
+}
 
+.back-btn {
+    display: inline-block !important;
+    padding: 12px 25px !important;
+    background: purple !important;
+    color: white !important;
+    text-decoration: none !important;
+    border-radius: 10px !important;
+}
+.back-dashboard {
+    text-align: center;
+    margin: 40px 0 20px;
+}
+
+.back-btn {
+    display: inline-block;
+    padding: 12px 24px;
+    border-radius: 10px;
+    background: linear-gradient(135deg, #7c3aed, #c026d3);
+    color: white;
+    text-decoration: none;
+    font-weight: 600;
+    box-shadow: 0 0 15px rgba(124, 58, 237, 0.5);
+    transition: 0.3s;
+}
+
+.back-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 0 25px rgba(192, 38, 211, 0.7);
+}
 }
