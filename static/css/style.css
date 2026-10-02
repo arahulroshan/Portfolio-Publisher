@@ -978,3 +978,30 @@ body {
     color: white;
     box-shadow: 0 0 15px rgba(192,38,211,0.6);
 }
+.password-wrapper {
+    position: relative;
+    width: 100%;
+}
+
+.password-wrapper input {
+    width: 100%;
+    padding-right: 50px;
+    box-sizing: border-box;
+}
+
+.password-toggle {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    border: none;
+    background: transparent;
+    color: #d8b4fe;
+    cursor: pointer;
+    font-size: 18px;
+    padding: 5px;
+}
+
+.password-toggle:hover {
+    color: white;
+}

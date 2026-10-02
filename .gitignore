@@ -2,4 +2,4 @@ venv/
 __pycache__/
 *.pyc
 portfolio.db
-.env
+.envportfolio_backup.db

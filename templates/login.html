@@ -32,12 +32,20 @@
                 >
 
                 <label>Password</label>
-                <input
-                    type="password"
-                    name="password"
-                    placeholder="Enter your password"
-                    required
-                >
+
+<div class="password-wrapper">
+    <input
+        type="password"
+        name="password"
+        id="password"
+        placeholder="Enter your password"
+        required
+    >
+
+    <button type="button" class="password-toggle" onclick="togglePassword()">
+        👁️
+    </button>
+</div>
 
                 <button type="submit">Login</button>
 
@@ -51,6 +59,19 @@
         </div>
 
     </div>
+<script>
+function togglePassword() {
+    const password = document.getElementById("password");
+    const toggle = document.querySelector(".password-toggle");
 
+    if (password.type === "password") {
+        password.type = "text";
+        toggle.textContent = "🙈";
+    } else {
+        password.type = "password";
+        toggle.textContent = "👁️";
+    }
+}
+</script>
 </body>
 </html>
