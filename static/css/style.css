@@ -934,3 +934,29 @@ body {
     color: #ffffff !important;
     text-shadow: 0 0 10px #c026d3 !important;
 }
+.experience-box .back-dashboard {
+    width: 100%;
+    text-align: center;
+    margin-top: 25px;
+    padding-top: 10px;
+}
+
+.experience-box .back-dashboard a {
+    display: inline-block;
+    color: #d8b4fe;
+    text-decoration: none;
+    font-size: 15px;
+}
+
+.experience-box .back-dashboard a:hover {
+    color: #ffffff;
+    text-shadow: 0 0 10px #c026d3;
+}
+.auth-box hr {
+    margin: 20px 0 10px 0;
+}
+
+.auth-box h2 {
+    margin-top: 10px;
+    margin-bottom: 25px;
+}
