@@ -978,6 +978,8 @@ body {
     color: white;
     box-shadow: 0 0 15px rgba(192,38,211,0.6);
 }
+/* Password Eye Button Fix */
+
 .password-wrapper {
     position: relative;
     width: 100%;
@@ -985,23 +987,38 @@ body {
 
 .password-wrapper input {
     width: 100%;
-    padding-right: 50px;
+    padding-right: 50px !important;
     box-sizing: border-box;
 }
 
-.password-toggle {
-    position: absolute;
-    right: 10px;
-    top: 50%;
-    transform: translateY(-50%);
-    border: none;
-    background: transparent;
-    color: #d8b4fe;
+.password-wrapper .password-toggle {
+    position: absolute !important;
+    right: 10px !important;
+    top: 50% !important;
+    transform: translateY(-50%) !important;
+
+    width: 35px !important;
+    min-width: 35px !important;
+    height: 35px !important;
+
+    padding: 0 !important;
+    margin: 0 !important;
+
+    border: none !important;
+    border-radius: 50% !important;
+
+    background: transparent !important;
+    box-shadow: none !important;
+
+    color: #d8b4fe !important;
+    font-size: 18px !important;
+
     cursor: pointer;
-    font-size: 18px;
-    padding: 5px;
+    z-index: 10;
 }
 
-.password-toggle:hover {
-    color: white;
+.password-wrapper .password-toggle:hover {
+    background: transparent !important;
+    color: white !important;
+    box-shadow: none !important;
 }
