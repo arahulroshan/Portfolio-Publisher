@@ -11,6 +11,24 @@
 
 <body>
 
+    <!-- Login Related Floating Background -->
+<div class="page-float-bg" aria-hidden="true">
+
+    <span class="float-item float-purple">Login</span>
+
+    <span class="float-item float-blue">Username</span>
+
+    <span class="float-item float-pink">Password</span>
+
+    <span class="float-item float-orange">Login</span>
+
+    <span class="float-item float-red">Username</span>
+
+    <span class="float-item float-purple">Password</span>
+
+</div>
+
+
     <div class="auth-container">
 
         <div class="auth-box">
@@ -24,6 +42,7 @@
             <form method="POST">
 
                 <label>Username</label>
+
                 <input
                     type="text"
                     name="username"
@@ -31,25 +50,36 @@
                     required
                 >
 
+
                 <label>Password</label>
 
-<div class="password-wrapper">
-    <input
-        type="password"
-        name="password"
-        id="password"
-        placeholder="Enter your password"
-        required
-    >
+                <div class="password-wrapper">
 
-    <button type="button" class="password-toggle" onclick="togglePassword()">
-        👁️
-    </button>
-</div>
+                    <input
+                        type="password"
+                        name="password"
+                        id="password"
+                        placeholder="Enter your password"
+                        required
+                    >
 
-                <button type="submit">Login</button>
+                    <button
+                        type="button"
+                        class="password-toggle"
+                        onclick="togglePassword()"
+                    >
+                        👁️
+                    </button>
+
+                </div>
+
+
+                <button type="submit">
+                    Login
+                </button>
 
             </form>
+
 
             <p class="login-text">
                 Don't have an account?
@@ -59,19 +89,30 @@
         </div>
 
     </div>
-<script>
-function togglePassword() {
-    const password = document.getElementById("password");
-    const toggle = document.querySelector(".password-toggle");
 
-    if (password.type === "password") {
-        password.type = "text";
-        toggle.textContent = "🙈";
-    } else {
-        password.type = "password";
-        toggle.textContent = "👁️";
+
+    <script>
+
+    function togglePassword() {
+
+        const password = document.getElementById("password");
+        const toggle = document.querySelector(".password-toggle");
+
+        if (password.type === "password") {
+
+            password.type = "text";
+            toggle.textContent = "👁️🗨️";
+
+        } else {
+
+            password.type = "password";
+            toggle.textContent = "👁️";
+
+        }
+
     }
-}
-</script>
+
+    </script>
+
 </body>
 </html>

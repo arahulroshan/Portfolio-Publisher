@@ -11,8 +11,19 @@
 
 <body>
 
-    <div class="auth-container">
+    <!-- Register Related Floating Background -->
+    <div class="page-float-bg" aria-hidden="true">
 
+        <span class="float-item float-purple">Register</span>
+        <span class="float-item float-blue">Username</span>
+        <span class="float-item float-pink">Email</span>
+        <span class="float-item float-orange">Password</span>
+        <span class="float-item float-red">Create Account</span>
+        <span class="float-item float-purple">Confirm Password</span>
+
+    </div>
+
+    <div class="auth-container">
         <div class="auth-box">
 
             <h1>Create Account</h1>
@@ -50,30 +61,3 @@
 
 </body>
 </html>
-@app.route("/login", methods=["GET", "POST"])
-def login():
-
-    if request.method == "POST":
-
-        username = request.form["username"]
-        password = request.form["password"]
-
-        conn = get_db()
-
-        user = conn.execute(
-            "SELECT * FROM users WHERE username = ?",
-            (username,)
-        ).fetchone()
-
-        conn.close()
-
-        if user and check_password_hash(user["password"], password):
-
-            session["user_id"] = user["id"]
-            session["username"] = user["username"]
-
-            return "Login successful!"
-
-        return "Invalid username or password!"
-
-    return render_template("login.html")
