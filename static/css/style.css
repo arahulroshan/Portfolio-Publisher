@@ -226,17 +226,12 @@ body {
    REGISTER / LOGIN / FORM
 ========================================= */
 
-.auth-container {
+ .auth-container {
     min-height: 100vh;
-
     display: flex;
-
     justify-content: center;
-
-    align-items: center;
-
-    padding: 40px 20px;
-
+    align-items: flex-start;
+    padding: 100px 20px 50px;
     background:
         radial-gradient(
             circle at 50% 40%,
@@ -789,37 +784,29 @@ body {
     color: #cfcfcf;
 }
 
-
 /* =========================================
    BACK TO DASHBOARD
 ========================================= */
 
 .back-dashboard {
+    width: 100%;
+    box-sizing: border-box;
     text-align: center;
-
-    margin-top: 45px;
-
-    margin-bottom: 30px;
+    margin-top: 25px;
+    padding-bottom: 10px;
 }
-
 
 .back-dashboard a {
+    display: inline-block;
     color: #d8b4fe;
-
     text-decoration: none;
-
-    font-size: 16px;
+    font-size: 15px;
 }
-
 
 .back-dashboard a:hover {
     color: #ffffff;
-
-    text-shadow:
-        0 0 10px #c026d3;
+    text-shadow: 0 0 10px #c026d3;
 }
-
-
 /* =========================================
    MOBILE
 ========================================= */
@@ -901,25 +888,13 @@ body {
     .project-image {
         height: 190px;
     }
-    .back-dashboard {
-    text-align: center;
-    margin: 30px 0;
-}
-
-.back-btn {
-    display: inline-block !important;
-    padding: 12px 25px !important;
-    background: purple !important;
-    color: white !important;
-    text-decoration: none !important;
-    border-radius: 10px !important;
-}
-.back-dashboard {
+    
+   .back-dashboard {
     text-align: center;
     margin: 40px 0 20px;
 }
 
-.back-btn {
+    .back-btn {
     display: inline-block;
     padding: 12px 24px;
     border-radius: 10px;
@@ -935,4 +910,27 @@ body {
     transform: translateY(-2px);
     box-shadow: 0 0 25px rgba(192, 38, 211, 0.7);
 }
+}
+/* FIX SKILLS BACK BUTTON */
+.auth-box .back-dashboard {
+    display: block !important;
+    width: 100% !important;
+    position: relative !important;
+    clear: both !important;
+    text-align: center !important;
+    margin: 30px 0 0 0 !important;
+    padding: 15px 0 5px 0 !important;
+}
+
+.auth-box .back-dashboard a {
+    display: inline-block !important;
+    position: relative !important;
+    color: #d8b4fe !important;
+    text-decoration: none !important;
+    font-size: 15px !important;
+}
+
+.auth-box .back-dashboard a:hover {
+    color: #ffffff !important;
+    text-shadow: 0 0 10px #c026d3 !important;
 }

@@ -19,7 +19,7 @@
 <body>
 
 
-    <!-- NAVBAR -->
+    <!-- ================= NAVBAR ================= -->
 
     <nav class="navbar">
 
@@ -29,11 +29,11 @@
 
         <div class="nav-links">
 
-            <a href="/dashboard">
+            <a href="{{ url_for('dashboard') }}">
                 Dashboard
             </a>
 
-            <a href="/logout">
+            <a href="{{ url_for('logout') }}">
                 Logout
             </a>
 
@@ -43,12 +43,14 @@
 
 
 
-    <!-- SKILLS SECTION -->
+    <!-- ================= SKILLS SECTION ================= -->
 
     <div class="auth-container">
 
         <div class="auth-box">
 
+
+            <!-- TITLE -->
 
             <h1>
                 My Skills 🛠️
@@ -61,7 +63,7 @@
 
 
 
-            <!-- ADD SKILL -->
+            <!-- ================= ADD SKILL ================= -->
 
             <form method="POST">
 
@@ -88,7 +90,7 @@
 
 
 
-            <!-- SKILL LIST -->
+            <!-- ================= SKILL LIST ================= -->
 
             <h2>
                 My Skills
@@ -111,7 +113,7 @@
                             <!-- EDIT -->
 
                             <a
-                                href="/edit-skill/{{ skill['id'] }}"
+                                href="{{ url_for('edit_skill', skill_id=skill['id']) }}"
                                 class="skill-edit"
                             >
                                 ✏️ Edit
@@ -121,7 +123,7 @@
                             <!-- DELETE -->
 
                             <a
-                                href="/delete-skill/{{ skill['id'] }}"
+                                href="{{ url_for('delete_skill', skill_id=skill['id']) }}"
                                 class="skill-delete"
                                 onclick="return confirm('Are you sure you want to delete this skill?');"
                             >
@@ -134,6 +136,7 @@
 
                 {% endfor %}
 
+
             {% else %}
 
                 <p>
@@ -143,18 +146,21 @@
             {% endif %}
 
 
+
+            <!-- ================= BACK TO DASHBOARD ================= -->
+
+            <div class="back-dashboard">
+
+                <a href="{{ url_for('dashboard') }}">
+                    ← Back to Dashboard
+                </a>
+
+            </div>
+
+
         </div>
-<!-- ================= BACK ================= -->
 
-        <div class="back-dashboard">
 
-            <a href="{{ url_for('dashboard') }}">
-                ← Back to Dashboard
-            </a>
-
-        </div>
-
-    </section>
     </div>
 
 
