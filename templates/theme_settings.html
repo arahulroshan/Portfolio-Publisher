@@ -13,152 +13,27 @@
     <link rel="stylesheet"
           href="{{ url_for('static', filename='css/style.css') }}">
 
-    <style>
-
-        body {
-            background:
-                radial-gradient(circle at top left, #2e1065, transparent 35%),
-                radial-gradient(circle at bottom right, #4c1d95, transparent 30%),
-                #080612;
-        }
-
-        /* ================= COLOUR PICKER ================= */
-
-        input[type="color"] {
-            width: 100%;
-            height: 60px;
-            padding: 5px;
-            border-radius: 12px;
-            border: 2px solid #8b5cf6;
-            background: #080612;
-            cursor: pointer;
-            margin-bottom: 20px;
-        }
-
-        input[type="color"]:hover {
-            box-shadow: 0 0 18px #8b5cf6;
-        }
-
-        /* ================= DROPDOWNS ================= */
-
-        select {
-            width: 100%;
-            padding: 14px;
-            margin-top: 8px;
-            margin-bottom: 25px;
-            border-radius: 12px;
-            border: 2px solid #8b5cf6;
-            background: #080612;
-            color: white;
-            font-size: 16px;
-            cursor: pointer;
-        }
-
-        select:hover {
-            box-shadow: 0 0 18px #8b5cf6;
-        }
-
-        select:focus {
-            outline: none;
-            box-shadow: 0 0 20px #8b5cf6;
-        }
-
-        select option {
-            background: #080612;
-            color: white;
-        }
-
-        /* ================= LABELS ================= */
-
-        label {
-            display: block;
-            margin-bottom: 8px;
-            color: #d8b4fe;
-            font-weight: 600;
-            font-size: 15px;
-        }
-
-        /* ================= FORM BOX ================= */
-
-        .project-form-box {
-            max-width: 650px;
-            margin: 30px auto;
-        }
-
-        /* ================= SAVE BUTTON ================= */
-
-        button[type="submit"] {
-            width: 100%;
-            padding: 14px;
-            border: none;
-            border-radius: 12px;
-            background: linear-gradient(
-                135deg,
-                #7c3aed,
-                #c026d3
-            );
-            color: white;
-            font-size: 16px;
-            font-weight: 700;
-            cursor: pointer;
-            transition: 0.3s;
-        }
-
-        button[type="submit"]:hover {
-            transform: translateY(-2px);
-            box-shadow:
-                0 0 20px #8b5cf6,
-                0 0 35px rgba(192, 38, 211, 0.5);
-        }
-
-        /* ================= PREVIEW ================= */
-
-        .theme-preview {
-            margin-top: 25px;
-            padding: 25px;
-            border-radius: 15px;
-            border: 1px solid #8b5cf6;
-            text-align: center;
-            background: rgba(139, 92, 246, 0.08);
-            box-shadow: 0 0 20px rgba(139, 92, 246, 0.15);
-        }
-
-        .theme-preview h3 {
-            color: #c084fc;
-            margin-bottom: 10px;
-        }
-
-        .theme-preview p {
-            color: #cbd5e1;
-        }
-
-        /* ================= BACK ================= */
-
-        .back-dashboard {
-            text-align: center;
-            margin-top: 25px;
-        }
-
-        .back-dashboard a {
-            color: #c084fc;
-            text-decoration: none;
-            font-weight: 600;
-        }
-
-        .back-dashboard a:hover {
-            color: #e9d5ff;
-            text-shadow: 0 0 10px #8b5cf6;
-        }
-
-    </style>
-
 </head>
-
 
 <body>
 
+    <!-- BACKGROUND -->
 
-    <!-- ================= NAVBAR ================= -->
+    <div class="neon-particles" aria-hidden="true">
+
+        <span></span>
+        <span></span>
+        <span></span>
+        <span></span>
+        <span></span>
+        <span></span>
+
+    </div>
+
+    <div class="neon-lightning" aria-hidden="true"></div>
+
+
+    <!-- NAVBAR -->
 
     <nav class="navbar">
 
@@ -181,28 +56,41 @@
     </nav>
 
 
-    <!-- ================= THEME SETTINGS ================= -->
+    <!-- THEME SETTINGS -->
 
-    <section class="dashboard">
+    <section class="dashboard theme-page">
 
         <div class="dashboard-header">
 
+            <div class="theme-page-icon">
+                🎨
+            </div>
+
             <h1>
-                🎨 Customize Your Portfolio
+                Customize Your Portfolio
             </h1>
 
             <p>
-                Choose colours, font and neon background style.
+                Personalize your portfolio with your favourite colours,
+                fonts and background style.
             </p>
 
         </div>
 
 
-        <div class="auth-box project-form-box">
+        <div class="auth-box theme-settings-box">
+
+            <div class="theme-box-icon">
+                ✨
+            </div>
 
             <h2>
-                🎨 Portfolio Theme
+                Portfolio Appearance
             </h2>
+
+            <p class="theme-help">
+                Choose how your public portfolio should look.
+            </p>
 
 
             <form method="POST">
@@ -210,132 +98,396 @@
 
                 <!-- ================= THEME COLOUR ================= -->
 
-                <label>
-                    Theme Colour
-                </label>
+                <div class="theme-field">
 
-                <input
-                    type="color"
-                    name="theme_color"
-                    value="{{ theme['theme_color'] if theme else '#8b5cf6' }}"
-                >
+                    <label>
+                        ✦ Theme Colour
+                    </label>
+
+                    <p class="field-description">
+                        Choose the main colour used throughout your portfolio.
+                    </p>
+
+
+                    <div class="color-choice-grid">
+
+                        <label class="color-option purple-option">
+
+                            <input
+                                type="radio"
+                                name="theme_color"
+                                value="#8b5cf6"
+                                {% if not theme or theme["theme_color"] == "#8b5cf6" %}checked{% endif %}
+                            >
+
+                            <span class="color-circle"></span>
+
+                            <span class="color-name">
+                                Purple
+                            </span>
+
+                        </label>
+
+
+                        <label class="color-option blue-option">
+
+                            <input
+                                type="radio"
+                                name="theme_color"
+                                value="#3b82f6"
+                                {% if theme and theme["theme_color"] == "#3b82f6" %}checked{% endif %}
+                            >
+
+                            <span class="color-circle"></span>
+
+                            <span class="color-name">
+                                Blue
+                            </span>
+
+                        </label>
+
+
+                        <label class="color-option pink-option">
+
+                            <input
+                                type="radio"
+                                name="theme_color"
+                                value="#ec4899"
+                                {% if theme and theme["theme_color"] == "#ec4899" %}checked{% endif %}
+                            >
+
+                            <span class="color-circle"></span>
+
+                            <span class="color-name">
+                                Pink
+                            </span>
+
+                        </label>
+
+
+                        <label class="color-option cyan-option">
+
+                            <input
+                                type="radio"
+                                name="theme_color"
+                                value="#06b6d4"
+                                {% if theme and theme["theme_color"] == "#06b6d4" %}checked{% endif %}
+                            >
+
+                            <span class="color-circle"></span>
+
+                            <span class="color-name">
+                                Cyan
+                            </span>
+
+                        </label>
+
+
+                        <label class="color-option green-option">
+
+                            <input
+                                type="radio"
+                                name="theme_color"
+                                value="#22c55e"
+                                {% if theme and theme["theme_color"] == "#22c55e" %}checked{% endif %}
+                            >
+
+                            <span class="color-circle"></span>
+
+                            <span class="color-name">
+                                Green
+                            </span>
+
+                        </label>
+
+
+                        <label class="color-option red-option">
+
+                            <input
+                                type="radio"
+                                name="theme_color"
+                                value="#ef4444"
+                                {% if theme and theme["theme_color"] == "#ef4444" %}checked{% endif %}
+                            >
+
+                            <span class="color-circle"></span>
+
+                            <span class="color-name">
+                                Red
+                            </span>
+
+                        </label>
+
+
+                        <label class="color-option orange-option">
+
+                            <input
+                                type="radio"
+                                name="theme_color"
+                                value="#f97316"
+                                {% if theme and theme["theme_color"] == "#f97316" %}checked{% endif %}
+                            >
+
+                            <span class="color-circle"></span>
+
+                            <span class="color-name">
+                                Orange
+                            </span>
+
+                        </label>
+
+
+                        <label class="color-option yellow-option">
+
+                            <input
+                                type="radio"
+                                name="theme_color"
+                                value="#eab308"
+                                {% if theme and theme["theme_color"] == "#eab308" %}checked{% endif %}
+                            >
+
+                            <span class="color-circle"></span>
+
+                            <span class="color-name">
+                                Yellow
+                            </span>
+
+                        </label>
+
+
+                        <label class="color-option indigo-option">
+
+                            <input
+                                type="radio"
+                                name="theme_color"
+                                value="#6366f1"
+                                {% if theme and theme["theme_color"] == "#6366f1" %}checked{% endif %}
+                            >
+
+                            <span class="color-circle"></span>
+
+                            <span class="color-name">
+                                Indigo
+                            </span>
+
+                        </label>
+
+
+                        <label class="color-option white-option">
+
+                            <input
+                                type="radio"
+                                name="theme_color"
+                                value="#f8fafc"
+                                {% if theme and theme["theme_color"] == "#f8fafc" %}checked{% endif %}
+                            >
+
+                            <span class="color-circle"></span>
+
+                            <span class="color-name">
+                                White
+                            </span>
+
+                        </label>
+
+                    </div>
+
+                </div>
 
 
                 <!-- ================= BACKGROUND COLOUR ================= -->
 
-                <label>
-                    Background Colour
-                </label>
+                <div class="theme-field">
 
-                <input
-                    type="color"
-                    name="background_color"
-                    value="{{ theme['background_color'] if theme else '#080612' }}"
-                >
+                    <label>
+                        ✦ Background Colour
+                    </label>
 
+                    <p class="field-description">
+                        Choose the base background colour of your portfolio.
+                    </p>
 
-                <!-- ================= FONT STYLE ================= -->
+                    <div class="background-color-row">
 
-                <label>
-                    Font Style
-                </label>
+                        <input
+                            type="color"
+                            name="background_color"
+                            value="{{ theme['background_color'] if theme else '#080612' }}"
+                        >
 
-                <select name="font_style" required>
+                        <div>
 
-                    <option value="Outfit"
-                        {% if theme and theme["font_style"] == "Outfit" %}selected{% endif %}>
-                        Modern - Outfit
-                    </option>
+                            <strong>
+                                Custom Background
+                            </strong>
 
-                    <option value="Space Grotesk"
-                        {% if theme and theme["font_style"] == "Space Grotesk" %}selected{% endif %}>
-                        Tech - Space Grotesk
-                    </option>
+                            <span>
+                                Pick any colour you like.
+                            </span>
 
-                    <option value="Poppins"
-                        {% if theme and theme["font_style"] == "Poppins" %}selected{% endif %}>
-                        Stylish - Poppins
-                    </option>
+                        </div>
 
-                    <option value="Roboto"
-                        {% if theme and theme["font_style"] == "Roboto" %}selected{% endif %}>
-                        Clean - Roboto
-                    </option>
+                    </div>
 
-                    <option value="Montserrat"
-                        {% if theme and theme["font_style"] == "Montserrat" %}selected{% endif %}>
-                        Bold - Montserrat
-                    </option>
-
-                </select>
+                </div>
 
 
-                <!-- ================= NEON BACKGROUND ================= -->
+                <!-- ================= FONT ================= -->
 
-                <label>
-                    Neon Background Style
-                </label>
+                <div class="theme-field">
 
-                <select name="background_style" required>
+                    <label>
+                        ✦ Font Style
+                    </label>
 
-                    <option value="purple"
-                        {% if theme and theme["background_style"] == "purple" %}selected{% endif %}>
-                        💜 Purple Neon
-                    </option>
-
-                    <option value="blue"
-                        {% if theme and theme["background_style"] == "blue" %}selected{% endif %}>
-                        💙 Blue Neon
-                    </option>
-
-                    <option value="green"
-                        {% if theme and theme["background_style"] == "green" %}selected{% endif %}>
-                        💚 Green Neon
-                    </option>
-
-                    <option value="pink"
-                        {% if theme and theme["background_style"] == "pink" %}selected{% endif %}>
-                        🩷 Pink Neon
-                    </option>
-
-                    <option value="cyan"
-                        {% if theme and theme["background_style"] == "cyan" %}selected{% endif %}>
-                        🩵 Cyan Neon
-                    </option>
-
-                </select>
+                    <p class="field-description">
+                        Select the font style for your public portfolio.
+                    </p>
 
 
-                <!-- ================= SAVE ================= -->
+                    <select name="font_style" required>
 
-                <button type="submit">
-                    💾 Save Theme
+                        <option value="Outfit"
+                            {% if theme and theme["font_style"] == "Outfit" %}selected{% endif %}>
+                            ✨ Modern — Outfit
+                        </option>
+
+                        <option value="Poppins"
+                            {% if theme and theme["font_style"] == "Poppins" %}selected{% endif %}>
+                            🎨 Stylish — Poppins
+                        </option>
+
+                        <option value="Montserrat"
+                            {% if theme and theme["font_style"] == "Montserrat" %}selected{% endif %}>
+                            🔥 Bold — Montserrat
+                        </option>
+
+                        <option value="Space Grotesk"
+                            {% if theme and theme["font_style"] == "Space Grotesk" %}selected{% endif %}>
+                            🚀 Tech — Space Grotesk
+                        </option>
+
+                        <option value="Roboto"
+                            {% if theme and theme["font_style"] == "Roboto" %}selected{% endif %}>
+                            🧊 Clean — Roboto
+                        </option>
+
+                        <option value="Inter"
+                            {% if theme and theme["font_style"] == "Inter" %}selected{% endif %}>
+                            💻 Professional — Inter
+                        </option>
+
+                        <option value="Raleway"
+                            {% if theme and theme["font_style"] == "Raleway" %}selected{% endif %}>
+                            ✦ Elegant — Raleway
+                        </option>
+
+                        <option value="Nunito"
+                            {% if theme and theme["font_style"] == "Nunito" %}selected{% endif %}>
+                            🌟 Friendly — Nunito
+                        </option>
+
+                        <option value="Oswald"
+                            {% if theme and theme["font_style"] == "Oswald" %}selected{% endif %}>
+                            ⚡ Strong — Oswald
+                        </option>
+
+                        <option value="Playfair Display"
+                            {% if theme and theme["font_style"] == "Playfair Display" %}selected{% endif %}>
+                            👑 Classic — Playfair Display
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                <!-- ================= BACKGROUND STYLE ================= -->
+
+                <div class="theme-field">
+
+                    <label>
+                        ✦ Neon Background Style
+                    </label>
+
+                    <p class="field-description">
+                        Select the atmosphere of your portfolio background.
+                    </p>
+
+
+                    <select name="background_style" required>
+
+                        <option value="purple"
+                            {% if theme and theme["background_style"] == "purple" %}selected{% endif %}>
+                            💜 Purple Neon
+                        </option>
+
+                        <option value="blue"
+                            {% if theme and theme["background_style"] == "blue" %}selected{% endif %}>
+                            💙 Blue Neon
+                        </option>
+
+                        <option value="green"
+                            {% if theme and theme["background_style"] == "green" %}selected{% endif %}>
+                            💚 Green Neon
+                        </option>
+
+                        <option value="pink"
+                            {% if theme and theme["background_style"] == "pink" %}selected{% endif %}>
+                            🩷 Pink Neon
+                        </option>
+
+                        <option value="cyan"
+                            {% if theme and theme["background_style"] == "cyan" %}selected{% endif %}>
+                            🩵 Cyan Neon
+                        </option>
+
+                        <option value="sunset"
+                            {% if theme and theme["background_style"] == "sunset" %}selected{% endif %}>
+                            🌅 Sunset Neon
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                <!-- SAVE -->
+
+                <button type="submit"
+                        class="theme-save-btn">
+
+                    <span>⚡</span>
+                    SAVE PORTFOLIO THEME
+
                 </button>
-
 
             </form>
 
 
-            <!-- ================= PREVIEW ================= -->
+            <!-- PREVIEW -->
 
             <div class="theme-preview">
 
+                <div class="preview-icon">
+                    ✨
+                </div>
+
                 <h3>
-                    ✨ Your Portfolio Theme
+                    Your Portfolio Theme
                 </h3>
 
                 <p>
-                    Your selected colour, font and neon background
-                    will be used in your public portfolio.
+                    Your selected colour, font and background style
+                    will be applied to your public portfolio.
                 </p>
 
             </div>
 
-
         </div>
 
 
-        <!-- ================= BACK ================= -->
+        <!-- BACK -->
 
         <div class="back-dashboard">
 
@@ -345,9 +497,7 @@
 
         </div>
 
-
     </section>
-
 
 </body>
 

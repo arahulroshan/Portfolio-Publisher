@@ -1,118 +1,226 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
+
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
 
     <title>Login - Portfolio Publisher</title>
 
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/style.css') }}">
+
 </head>
+
 
 <body>
 
-    <!-- Login Related Floating Background -->
-<div class="page-float-bg" aria-hidden="true">
 
-    <span class="float-item float-purple">Login</span>
+    <!-- =========================================
+         FUTURISTIC BACKGROUND
+         ========================================= -->
 
-    <span class="float-item float-blue">Username</span>
+    <div class="neon-particles" aria-hidden="true">
 
-    <span class="float-item float-pink">Password</span>
-
-    <span class="float-item float-orange">Login</span>
-
-    <span class="float-item float-red">Username</span>
-
-    <span class="float-item float-purple">Password</span>
-
-</div>
-
-
-    <div class="auth-container">
-
-        <div class="auth-box">
-
-            <h1>Welcome Back</h1>
-
-            <p class="auth-subtitle">
-                Login to continue building your portfolio.
-            </p>
-
-            <form method="POST">
-
-                <label>Username</label>
-
-                <input
-                    type="text"
-                    name="username"
-                    placeholder="Enter your username"
-                    required
-                >
-
-
-                <label>Password</label>
-
-                <div class="password-wrapper">
-
-                    <input
-                        type="password"
-                        name="password"
-                        id="password"
-                        placeholder="Enter your password"
-                        required
-                    >
-
-                    <button
-                        type="button"
-                        class="password-toggle"
-                        onclick="togglePassword()"
-                    >
-                        👁️
-                    </button>
-
-                </div>
-
-
-                <button type="submit">
-                    Login
-                </button>
-
-            </form>
-
-
-            <p class="login-text">
-                Don't have an account?
-                <a href="/register">Create Account</a>
-            </p>
-
-        </div>
+        <span></span>
+        <span></span>
+        <span></span>
+        <span></span>
+        <span></span>
+        <span></span>
 
     </div>
 
 
+    <div class="neon-lightning" aria-hidden="true"></div>
+
+
+
+    <!-- =========================================
+         LOGIN CONTAINER
+         ========================================= -->
+
+    <div class="auth-container">
+
+
+        <!-- LOGIN BOX -->
+
+        <div class="auth-box login-box">
+
+
+            <!-- LOGO -->
+
+            <div class="register-logo">
+
+                <div class="register-logo-ring"></div>
+
+                <span>P</span>
+
+            </div>
+
+
+
+            <!-- TITLE -->
+
+            <h1>
+                Welcome Back
+            </h1>
+
+
+            <p class="auth-subtitle">
+
+                Login to continue building your
+                portfolio.
+
+            </p>
+
+
+
+            <!-- LOGIN FORM -->
+
+            <form method="POST">
+
+
+                <!-- USERNAME -->
+
+                <div class="form-group">
+
+                    <label for="username">
+                        Username
+                    </label>
+
+                    <input
+                        type="text"
+                        id="username"
+                        name="username"
+                        placeholder="Enter your username"
+                        required>
+
+                </div>
+
+
+
+                <!-- PASSWORD -->
+
+                <div class="form-group">
+
+                    <label for="password">
+                        Password
+                    </label>
+
+
+                    <div class="password-wrapper">
+
+                        <input
+                            type="password"
+                            name="password"
+                            id="password"
+                            placeholder="Enter your password"
+                            required>
+
+
+                        <button
+                            type="button"
+                            class="password-toggle"
+                            onclick="togglePassword()">
+
+                            👁️
+
+                        </button>
+
+                    </div>
+
+                </div>
+
+
+
+                <!-- LOGIN BUTTON -->
+
+                <button
+                    type="submit"
+                    class="register-submit-btn">
+
+                    <span>
+                        ⚡
+                    </span>
+
+                    LOGIN
+
+                </button>
+
+
+            </form>
+
+
+
+            <!-- REGISTER LINK -->
+
+            <p class="login-text">
+
+                Don't have an account?
+
+                <a href="{{ url_for('register') }}">
+                    Create Account
+                </a>
+
+            </p>
+
+
+        </div>
+
+
+
+        <!-- BACK TO HOME -->
+
+        <a href="{{ url_for('home') }}"
+           class="auth-back-home">
+
+            ← Back to Home
+
+        </a>
+
+
+    </div>
+
+
+
+    <!-- =========================================
+         PASSWORD TOGGLE
+         ========================================= -->
+
     <script>
 
-    function togglePassword() {
+        function togglePassword() {
 
-        const password = document.getElementById("password");
-        const toggle = document.querySelector(".password-toggle");
+            const password =
+                document.getElementById("password");
 
-        if (password.type === "password") {
+            const toggle =
+                document.querySelector(".password-toggle");
 
-            password.type = "text";
-            toggle.textContent = "👁️🗨️";
 
-        } else {
+            if (password.type === "password") {
 
-            password.type = "password";
-            toggle.textContent = "👁️";
+                password.type = "text";
+
+                toggle.textContent = "🙈";
+
+            } else {
+
+                password.type = "password";
+
+                toggle.textContent = "👁️";
+
+            }
 
         }
 
-    }
-
     </script>
 
+
 </body>
+
 </html>

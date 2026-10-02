@@ -1,63 +1,210 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
+
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
 
     <title>Register - Portfolio Publisher</title>
 
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/style.css') }}">
+
 </head>
+
 
 <body>
 
-    <!-- Register Related Floating Background -->
-    <div class="page-float-bg" aria-hidden="true">
 
-        <span class="float-item float-purple">Register</span>
-        <span class="float-item float-blue">Username</span>
-        <span class="float-item float-pink">Email</span>
-        <span class="float-item float-orange">Password</span>
-        <span class="float-item float-red">Create Account</span>
-        <span class="float-item float-purple">Confirm Password</span>
+    <!-- =========================================
+         FUTURISTIC BACKGROUND
+         ========================================= -->
+
+    <div class="neon-particles" aria-hidden="true">
+
+        <span></span>
+        <span></span>
+        <span></span>
+        <span></span>
+        <span></span>
+        <span></span>
 
     </div>
 
-    <div class="auth-container">
-        <div class="auth-box">
 
-            <h1>Create Account</h1>
+    <div class="neon-lightning" aria-hidden="true"></div>
 
-            <p class="auth-subtitle">
-                Join Portfolio Publisher and build your professional portfolio.
-            </p>
 
-            <form method="POST">
 
-                <label>Username</label>
-                <input type="text" name="username" placeholder="Enter username" required>
+    <!-- =========================================
+         REGISTER CONTAINER
+         ========================================= -->
+<div class="auth-container">
 
-                <label>Email</label>
-                <input type="email" name="email" placeholder="Enter email" required>
 
-                <label>Password</label>
-                <input type="password" name="password" placeholder="Enter password" required>
+    <!-- REGISTER BOX -->
 
-                <label>Confirm Password</label>
-                <input type="password" name="confirm_password" placeholder="Confirm password" required>
+    <div class="auth-box register-box">
 
-                <button type="submit">Create Account</button>
+        <!-- LOGO -->
 
-            </form>
+        <div class="register-logo">
 
-            <p class="login-text">
-                Already have an account?
-                <a href="/login">Login</a>
-            </p>
+            <div class="register-logo-ring"></div>
+
+            <span>P</span>
 
         </div>
 
+
+        <h1>
+            Create Account
+        </h1>
+
+
+        <p class="auth-subtitle">
+
+            Join Portfolio Publisher and build your
+            professional portfolio.
+
+        </p>
+
+
+        <form method="POST">
+
+            <div class="form-group">
+
+                <label for="username">
+                    Username
+                </label>
+
+                <input
+                    type="text"
+                    id="username"
+                    name="username"
+                    placeholder="Enter username"
+                    required>
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label for="email">
+                    Email
+                </label>
+
+                <input
+                    type="email"
+                    id="email"
+                    name="email"
+                    placeholder="Enter email"
+                    required>
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label for="password">
+                    Password
+                </label>
+
+                <div class="password-wrapper">
+
+                    <input
+                        type="password"
+                        id="password"
+                        name="password"
+                        placeholder="Enter password"
+                        required>
+
+                    <button
+                        type="button"
+                        class="password-toggle"
+                        onclick="togglePassword('password', this)">
+
+                        👁️
+
+                    </button>
+
+                </div>
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label for="confirm_password">
+                    Confirm Password
+                </label>
+
+                <div class="password-wrapper">
+
+                    <input
+                        type="password"
+                        id="confirm_password"
+                        name="confirm_password"
+                        placeholder="Confirm password"
+                        required>
+
+                    <button
+                        type="button"
+                        class="password-toggle"
+                        onclick="togglePassword('confirm_password', this)">
+
+                        👁️
+
+                    </button>
+
+                </div>
+
+            </div>
+
+
+            <button
+                type="submit"
+                class="register-submit-btn">
+
+                <span>⚡</span>
+
+                CREATE ACCOUNT
+
+            </button>
+
+        </form>
+
+
+        <p class="login-text">
+
+            Already have an account?
+
+            <a href="{{ url_for('login') }}">
+                Login
+            </a>
+
+        </p>
+
+
     </div>
 
-</body>
-</html>
+
+    <!-- BACK TO HOME -->
+
+    <a href="{{ url_for('home') }}"
+       class="auth-back-home">
+
+        ← Back to Home
+
+    </a>
+
+
+</div>
+    
+
+
+
+        

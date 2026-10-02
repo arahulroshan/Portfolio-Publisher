@@ -13,285 +13,27 @@
     <link rel="stylesheet"
           href="{{ url_for('static', filename='css/style.css') }}">
 
-    <style>
-
-        body {
-            background:
-                radial-gradient(
-                    circle at 20% 20%,
-                    rgba(139, 92, 246, 0.25),
-                    transparent 35%
-                ),
-                radial-gradient(
-                    circle at 80% 80%,
-                    rgba(192, 38, 211, 0.20),
-                    transparent 35%
-                ),
-                #050509;
-
-            color: white;
-            min-height: 100vh;
-        }
-
-
-        .publish-container {
-            min-height: calc(100vh - 75px);
-
-            display: flex;
-            justify-content: center;
-            align-items: center;
-
-            padding: 40px 20px;
-        }
-
-
-        .publish-card {
-            width: 100%;
-            max-width: 650px;
-
-            padding: 45px;
-
-            text-align: center;
-
-            background: rgba(255, 255, 255, 0.05);
-
-            border: 1px solid rgba(168, 85, 247, 0.35);
-
-            border-radius: 25px;
-
-            box-shadow:
-                0 0 25px rgba(139, 92, 246, 0.20),
-                0 0 60px rgba(192, 38, 211, 0.10);
-
-            backdrop-filter: blur(15px);
-        }
-
-
-        .publish-icon {
-            font-size: 60px;
-            margin-bottom: 20px;
-        }
-
-
-        .publish-card h1 {
-            font-size: 38px;
-            margin-bottom: 15px;
-        }
-
-
-        .publish-card h1 span {
-            color: #c084fc;
-        }
-
-
-        .publish-card p {
-            color: #aaa7b8;
-            line-height: 1.7;
-        }
-
-
-        .status {
-            margin: 25px 0;
-            padding: 14px;
-
-            border-radius: 12px;
-
-            font-weight: 600;
-        }
-
-
-        .published {
-            color: #00ff88;
-
-            background: rgba(0, 255, 136, 0.08);
-
-            border: 1px solid rgba(0, 255, 136, 0.3);
-        }
-
-
-        .not-published {
-            color: #ff5c8a;
-
-            background: rgba(255, 92, 138, 0.08);
-
-            border: 1px solid rgba(255, 92, 138, 0.3);
-        }
-
-
-        .portfolio-url {
-            margin: 20px 0;
-
-            padding: 16px;
-
-            border-radius: 12px;
-
-            background: rgba(139, 92, 246, 0.10);
-
-            border: 1px solid rgba(139, 92, 246, 0.35);
-
-            word-break: break-all;
-
-            color: #c084fc;
-        }
-
-
-        button,
-        .portfolio-button {
-
-            display: inline-block;
-
-            padding: 13px 28px;
-
-            margin: 8px;
-
-            border: none;
-
-            border-radius: 10px;
-
-            background:
-                linear-gradient(
-                    135deg,
-                    #7c3aed,
-                    #c026d3
-                );
-
-            color: white;
-
-            font-weight: 600;
-
-            text-decoration: none;
-
-            cursor: pointer;
-
-            transition: 0.3s;
-        }
-
-
-        button:hover,
-        .portfolio-button:hover {
-
-            transform: translateY(-3px);
-
-            box-shadow:
-                0 0 20px #8b5cf6,
-                0 0 40px rgba(192, 38, 211, 0.5);
-        }
-
-
-        .unpublish-button {
-
-            background:
-                linear-gradient(
-                    135deg,
-                    #dc2626,
-                    #be185d
-                );
-        }
-
-
-        /* ================= QR CODE ================= */
-
-        .qr-section {
-
-            margin-top: 35px;
-
-            padding-top: 30px;
-
-            border-top: 1px solid rgba(255,255,255,0.10);
-        }
-
-
-        .qr-section h3 {
-
-            color: #c084fc;
-
-            font-size: 22px;
-
-            margin-bottom: 8px;
-        }
-
-
-        .qr-box {
-
-            display: inline-block;
-
-            padding: 15px;
-
-            margin: 15px 0;
-
-            background: white;
-
-            border-radius: 16px;
-
-            box-shadow:
-                0 0 20px rgba(139, 92, 246, 0.5);
-        }
-
-
-        .qr-box img {
-
-            display: block;
-
-            width: 220px;
-
-            height: 220px;
-        }
-
-
-        .download-qr {
-
-            background:
-                linear-gradient(
-                    135deg,
-                    #2563eb,
-                    #7c3aed
-                );
-        }
-
-
-        .back-button {
-
-            display: inline-block;
-
-            margin-top: 20px;
-
-            color: #aaa7b8;
-
-            text-decoration: none;
-        }
-
-
-        .back-button:hover {
-            color: #c084fc;
-        }
-
-
-        @media (max-width: 600px) {
-
-            .publish-card {
-                padding: 25px 18px;
-            }
-
-            .publish-card h1 {
-                font-size: 30px;
-            }
-
-            .qr-box img {
-                width: 180px;
-                height: 180px;
-            }
-
-        }
-
-    </style>
-
 </head>
-
 
 <body>
 
+    <!-- BACKGROUND -->
 
-    <!-- ================= NAVBAR ================= -->
+    <div class="neon-particles" aria-hidden="true">
+
+        <span></span>
+        <span></span>
+        <span></span>
+        <span></span>
+        <span></span>
+        <span></span>
+
+    </div>
+
+    <div class="neon-lightning" aria-hidden="true"></div>
+
+
+    <!-- NAVBAR -->
 
     <nav class="navbar">
 
@@ -314,96 +56,117 @@
     </nav>
 
 
-    <!-- ================= PUBLISH SECTION ================= -->
+    <!-- PUBLISH SECTION -->
 
-    <div class="publish-container">
+    <section class="publish-page">
 
         <div class="publish-card">
-
 
             <div class="publish-icon">
                 🌐
             </div>
 
+            <div class="publish-label">
+                ✦ PORTFOLIO PUBLISHING
+            </div>
 
             <h1>
-                Publish Your <span>Portfolio</span>
+                Publish Your
+                <span>Portfolio</span>
             </h1>
+
+            <p class="publish-description">
+                Make your professional portfolio publicly accessible
+                and share it with recruiters, friends and others.
+            </p>
 
 
             {% if is_published %}
 
+            <!-- ================= PUBLISHED ================= -->
 
-                <!-- ================= PUBLISHED ================= -->
+            <div class="publish-status published">
 
-                <div class="status published">
+                <span class="status-dot"></span>
 
-                    🟢 Your Portfolio is Published
+                Your Portfolio is Published
 
+            </div>
+
+            <p class="status-description">
+
+                Your portfolio is currently visible to anyone
+                who has your portfolio link.
+
+            </p>
+
+
+            <!-- PORTFOLIO URL -->
+
+            <div class="portfolio-link-box">
+
+                <div class="link-label">
+                    🔗 YOUR PORTFOLIO LINK
                 </div>
-
-
-                <p>
-
-                    Your portfolio is currently visible to anyone
-                    who has your portfolio link.
-
-                </p>
-
 
                 <div class="portfolio-url">
-
                     {{ portfolio_url }}
-
                 </div>
-<button
-    type="button"
-    onclick="copyPortfolioLink()"
->
-    📋 Copy Portfolio Link
-</button>
 
-                <!-- OPEN PORTFOLIO -->
+            </div>
+
+
+            <!-- ACTIONS -->
+
+            <div class="publish-actions">
+
+                <button
+                    type="button"
+                    onclick="copyPortfolioLink()"
+                    class="publish-action-btn"
+                >
+                    📋 Copy Link
+                </button>
+
 
                 <a
                     href="{{ portfolio_url }}"
                     target="_blank"
-                    class="portfolio-button"
+                    class="publish-action-btn primary"
                 >
-
                     🚀 Open Portfolio
-
                 </a>
 
-
-                <!-- ================= QR SECTION ================= -->
-
-                <div class="qr-section">
-
-                    <h3>
-                        📱 Share Your Portfolio
-                    </h3>
-
-                    <p>
-                        Scan this QR code to open your portfolio.
-                    </p>
+            </div>
 
 
-                    <div class="qr-box">
+            <!-- QR -->
 
-                        <img
-                            src="{{ url_for(
-                                'generate_portfolio_qr',
-                                username=username
-                            ) }}"
-                            alt="Portfolio QR Code"
-                        >
+            <div class="qr-section">
 
-                    </div>
+                <div class="qr-title">
+                    📱 Share Your Portfolio
+                </div>
+
+                <p>
+                    Scan the QR code to open your public portfolio.
+                </p>
 
 
-                    <br>
+                <div class="qr-box">
 
+                    <img
+                        src="{{ url_for(
+                            'generate_portfolio_qr',
+                            username=username
+                        ) }}"
+                        alt="Portfolio QR Code"
+                    >
+
+                </div>
+
+
+                <div>
 
                     <a
                         href="{{ url_for(
@@ -411,84 +174,91 @@
                             username=username
                         ) }}"
                         download="portfolio_qr.png"
-                        class="portfolio-button download-qr"
+                        class="download-qr-btn"
                     >
-
                         📥 Download QR Code
-
                     </a>
 
                 </div>
 
-
-                <!-- ================= UNPUBLISH ================= -->
-
-                <form method="POST">
-
-                    <input
-                        type="hidden"
-                        name="action"
-                        value="unpublish"
-                    >
+            </div>
 
 
-                    <button
-                        type="submit"
-                        class="unpublish-button"
-                    >
+            <!-- UNPUBLISH -->
 
-                        🔴 Unpublish Portfolio
+            <form method="POST"
+                  class="unpublish-form">
 
-                    </button>
+                <input
+                    type="hidden"
+                    name="action"
+                    value="unpublish"
+                >
 
-                </form>
+                <button
+                    type="submit"
+                    class="unpublish-button"
+                >
+                    🔴 Unpublish Portfolio
+                </button>
+
+            </form>
 
 
             {% else %}
 
+            <!-- ================= NOT PUBLISHED ================= -->
 
-                <!-- ================= NOT PUBLISHED ================= -->
+            <div class="publish-status not-published">
 
-                <div class="status not-published">
+                <span class="status-dot"></span>
 
-                    🔴 Your Portfolio is Not Published
+                Your Portfolio is Not Published
 
+            </div>
+
+            <p class="status-description">
+
+                Publish your portfolio to make it publicly
+                accessible through your personal portfolio URL.
+
+            </p>
+
+
+            <!-- PREVIEW URL -->
+
+            <div class="portfolio-link-box">
+
+                <div class="link-label">
+                    🔗 YOUR PORTFOLIO LINK
                 </div>
-
-
-                <p>
-
-                    Publish your portfolio to make it publicly
-                    accessible through your personal portfolio URL.
-
-                </p>
-
 
                 <div class="portfolio-url">
-
                     {{ portfolio_url }}
-
                 </div>
 
-
-                <!-- PUBLISH -->
-
-                <form method="POST">
-
-                    <input
-                        type="hidden"
-                        name="action"
-                        value="publish"
-                    >
+            </div>
 
 
-                    <button type="submit">
+            <!-- PUBLISH BUTTON -->
 
-                        🚀 Publish Portfolio
+            <form method="POST">
 
-                    </button>
+                <input
+                    type="hidden"
+                    name="action"
+                    value="publish"
+                >
 
-                </form>
+                <button
+                    type="submit"
+                    class="publish-main-btn"
+                >
+                    <span>⚡</span>
+                    PUBLISH MY PORTFOLIO
+                </button>
+
+            </form>
 
 
             {% endif %}
@@ -498,39 +268,38 @@
 
             <a
                 href="{{ url_for('dashboard') }}"
-                class="back-button"
+                class="publish-back"
             >
-
                 ← Back to Dashboard
-
             </a>
-
 
         </div>
 
-    </div>
+    </section>
 
-<script>
 
-function copyPortfolioLink() {
+    <script>
 
-    const portfolioLink = "{{ portfolio_url }}";
+        function copyPortfolioLink() {
 
-    navigator.clipboard.writeText(portfolioLink)
-        .then(function () {
+            const portfolioLink = "{{ portfolio_url }}";
 
-            alert("✅ Portfolio link copied!");
+            navigator.clipboard.writeText(portfolioLink)
+                .then(function () {
 
-        })
-        .catch(function () {
+                    alert("✅ Portfolio link copied!");
 
-            alert("❌ Could not copy the link.");
+                })
+                .catch(function () {
 
-        });
+                    alert("❌ Could not copy the link.");
 
-}
+                });
 
-</script>
+        }
+
+    </script>
+
 </body>
 
 </html>

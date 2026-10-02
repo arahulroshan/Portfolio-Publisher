@@ -17,6 +17,22 @@
 
 <body>
 
+    <!-- BACKGROUND EFFECTS -->
+
+    <div class="neon-particles" aria-hidden="true">
+
+        <span></span>
+        <span></span>
+        <span></span>
+        <span></span>
+        <span></span>
+        <span></span>
+
+    </div>
+
+    <div class="neon-lightning" aria-hidden="true"></div>
+
+
     <!-- NAVBAR -->
 
     <nav class="navbar">
@@ -42,79 +58,157 @@
 
     <!-- SOCIAL LINKS -->
 
-    <section class="dashboard">
+    <section class="dashboard social-page">
 
         <div class="dashboard-header">
 
+            <div class="social-page-icon">
+                🔗
+            </div>
+
             <h1>
-                Social Links 🔗
+                Social Links
             </h1>
 
             <p>
-                Add your professional links.
+                Connect your professional profiles and online presence.
             </p>
 
         </div>
 
 
-        <div class="auth-box project-form-box">
+        <!-- SOCIAL FORM -->
+
+        <div class="auth-box project-form-box social-form-box">
+
+            <div class="social-form-icon">
+                🌐
+            </div>
 
             <h2>
                 Manage Social Links
             </h2>
 
+            <p class="social-help-text">
+                Add your professional profiles to showcase them on your portfolio.
+            </p>
+
+
             <form method="POST">
 
-                <label>
-                    LinkedIn
-                </label>
 
-                <input
-                    type="url"
-                    name="linkedin"
-                    value="{{ social['linkedin'] if social else '' }}"
-                    placeholder="https://www.linkedin.com/in/your-profile"
-                >
+                <!-- LINKEDIN -->
 
+                <div class="social-field">
 
-                <label>
-                    GitHub
-                </label>
+                    <label>
+                        LinkedIn
+                    </label>
 
-                <input
-                    type="url"
-                    name="github"
-                    value="{{ social['github'] if social else '' }}"
-                    placeholder="https://github.com/your-username"
-                >
+                    <div class="social-input-wrapper">
 
+                        <span class="social-input-icon">
+                            in
+                        </span>
 
-                <label>
-                    Email
-                </label>
+                        <input
+                            type="url"
+                            name="linkedin"
+                            value="{{ social['linkedin'] if social else '' }}"
+                            placeholder="https://www.linkedin.com/in/your-profile"
+                        >
 
-                <input
-                    type="email"
-                    name="email"
-                    value="{{ social['email'] if social else '' }}"
-                    placeholder="your@email.com"
-                >
+                    </div>
+
+                </div>
 
 
-                <label>
-                    Portfolio Website
-                </label>
+                <!-- GITHUB -->
 
-                <input
-                    type="url"
-                    name="portfolio"
-                    value="{{ social['portfolio'] if social else '' }}"
-                    placeholder="https://yourportfolio.com"
-                >
+                <div class="social-field">
+
+                    <label>
+                        GitHub
+                    </label>
+
+                    <div class="social-input-wrapper">
+
+                        <span class="social-input-icon">
+                            &lt;/&gt;
+                        </span>
+
+                        <input
+                            type="url"
+                            name="github"
+                            value="{{ social['github'] if social else '' }}"
+                            placeholder="https://github.com/your-username"
+                        >
+
+                    </div>
+
+                </div>
 
 
-                <button type="submit">
-                    💾 Save Social Links
+                <!-- EMAIL -->
+
+                <div class="social-field">
+
+                    <label>
+                        Email
+                    </label>
+
+                    <div class="social-input-wrapper">
+
+                        <span class="social-input-icon">
+                            @
+                        </span>
+
+                        <input
+                            type="email"
+                            name="email"
+                            value="{{ social['email'] if social else '' }}"
+                            placeholder="your@email.com"
+                        >
+
+                    </div>
+
+                </div>
+
+
+                <!-- PORTFOLIO -->
+
+                <div class="social-field">
+
+                    <label>
+                        Portfolio Website
+                    </label>
+
+                    <div class="social-input-wrapper">
+
+                        <span class="social-input-icon">
+                            🌐
+                        </span>
+
+                        <input
+                            type="url"
+                            name="portfolio"
+                            value="{{ social['portfolio'] if social else '' }}"
+                            placeholder="https://yourportfolio.com"
+                        >
+
+                    </div>
+
+                </div>
+
+
+                <!-- SAVE -->
+
+                <button type="submit"
+                        class="social-save-btn">
+
+                    <span>⚡</span>
+                    SAVE SOCIAL LINKS
+
                 </button>
 
             </form>

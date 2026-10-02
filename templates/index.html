@@ -1,23 +1,54 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
+
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
 
     <title>Portfolio Publisher</title>
 
     <link rel="stylesheet"
           href="{{ url_for('static', filename='css/style.css') }}">
+
 </head>
+
 
 <body>
 
-    <!-- NAVBAR -->
+
+    <!-- =========================================
+         FUTURISTIC BACKGROUND
+         ========================================= -->
+
+    <div class="neon-particles" aria-hidden="true">
+
+        <span></span>
+        <span></span>
+        <span></span>
+        <span></span>
+        <span></span>
+        <span></span>
+
+    </div>
+
+
+    <div class="neon-lightning" aria-hidden="true"></div>
+
+
+
+    <!-- =========================================
+         NAVBAR
+         ========================================= -->
+
     <nav class="navbar">
 
         <div class="logo">
             Portfolio Publisher
         </div>
+
 
         <div class="nav-links">
 
@@ -35,7 +66,9 @@
 
             <a href="{{ url_for('register') }}"
                class="signup-btn">
+
                 Get Started
+
             </a>
 
         </div>
@@ -43,50 +76,382 @@
     </nav>
 
 
-    <!-- HERO -->
-    <section class="hero">
 
-        <div class="hero-content">
+    <!-- =========================================
+         HERO SECTION
+         ========================================= -->
+
+    <section class="home-hero">
+
+        <div class="home-hero-content">
+
+
+            <!-- CENTRAL P LOGO -->
+
+            <div class="hero-logo">
+
+                <div class="hero-logo-ring"></div>
+
+                <div class="hero-logo-letter">
+                    P
+                </div>
+
+            </div>
+
+
+
+            <!-- HERO BADGE -->
+
+            <div class="hero-badge">
+
+                ✦ PORTFOLIO PUBLISHER ✦
+
+            </div>
+
+
+
+            <!-- MAIN HEADING -->
 
             <h1>
-                Build Your Professional Portfolio
+
+                Build Your
+
+                <span>
+                    Professional
+                </span>
+
+                Portfolio
+
             </h1>
 
+
+
+            <!-- DESCRIPTION -->
+
             <p>
-                Create, customize and publish your personal portfolio
-                easily in one place.
+
+                Create, customize and publish your
+                professional portfolio in one place.
+
             </p>
+
+
+
+            <!-- CREATE PORTFOLIO BUTTON -->
 
             <a href="{{ url_for('register') }}"
-               class="main-btn">
-                Create My Portfolio
+               class="create-portfolio-btn">
+
+                <span class="lightning">
+                    ⚡
+                </span>
+
+                CREATE MY PORTFOLIO
+
             </a>
 
+
+
+            <!-- HERO NOTE -->
+
+            <div class="hero-note">
+
+                ✦ Create &nbsp; • &nbsp;
+                Customize &nbsp; • &nbsp;
+                Publish
+
+            </div>
+
+
         </div>
 
     </section>
 
 
-    <!-- ABOUT -->
-    <section id="about" class="hero">
 
-        <div class="hero-content">
+    <!-- =========================================
+         ABOUT + FEATURES SECTION
+         ========================================= -->
+
+    <section id="about"
+             class="home-about">
+
+        <div class="about-content">
+
+
+            <!-- SECTION LABEL -->
+
+            <div class="section-label">
+
+                ✦ WHY PORTFOLIO PUBLISHER
+
+            </div>
+
+
+
+            <!-- SECTION TITLE -->
 
             <h2>
-                About Portfolio Publisher
+
+                Everything You Need
+
+                <span>
+                    In One Place
+                </span>
+
             </h2>
 
-            <p>
-                Portfolio Publisher helps you create, customize and
-                publish your professional portfolio in one place.
-                Add your education, skills, projects, certificates,
-                experience and resume and share your portfolio easily.
+
+
+            <!-- DESCRIPTION -->
+
+            <p class="about-description">
+
+                Create your professional portfolio,
+                customize its appearance, manage your
+                career details and publish it with a
+                shareable link.
+
             </p>
+
+
+
+            <!-- =====================================
+                 FEATURE GRID
+                 ===================================== -->
+
+            <div class="feature-grid">
+
+
+                <!-- AI ASSISTANT -->
+
+                <div class="feature-card">
+
+                    <div class="feature-icon">
+                        🤖
+                    </div>
+
+                    <h3>
+                        AI Assistant
+                    </h3>
+
+                    <p>
+                        Get help while building and managing
+                        your portfolio.
+                    </p>
+
+                </div>
+
+
+
+                <!-- CUSTOM DESIGN -->
+
+                <div class="feature-card">
+
+                    <div class="feature-icon">
+                        🎨
+                    </div>
+
+                    <h3>
+                        Custom Design
+                    </h3>
+
+                    <p>
+                        Choose your preferred colors, fonts
+                        and portfolio appearance.
+                    </p>
+
+                </div>
+
+
+
+                <!-- QR PORTFOLIO -->
+
+                <div class="feature-card">
+
+                    <div class="feature-icon">
+                        📱
+                    </div>
+
+                    <h3>
+                        QR Portfolio
+                    </h3>
+
+                    <p>
+                        Generate a QR code and share your
+                        portfolio instantly.
+                    </p>
+
+                </div>
+
+
+
+                <!-- EASY PUBLISHING -->
+
+                <div class="feature-card">
+
+                    <div class="feature-icon">
+                        🚀
+                    </div>
+
+                    <h3>
+                        Easy Publishing
+                    </h3>
+
+                    <p>
+                        Publish your portfolio and share
+                        your personal portfolio link.
+                    </p>
+
+                </div>
+
+
+            </div>
+
 
         </div>
 
     </section>
+
+
+
+    <!-- =========================================
+         FINAL CTA SECTION
+         ========================================= -->
+
+    <section class="final-cta">
+
+        <div class="final-cta-content">
+
+
+            <!-- CTA LABEL -->
+
+            <div class="cta-label">
+
+                ✦ START YOUR JOURNEY
+
+            </div>
+
+
+
+            <!-- CTA TITLE -->
+
+            <h2>
+
+                Ready to Build Your
+
+                <span>
+                    Portfolio?
+                </span>
+
+            </h2>
+
+
+
+            <!-- CTA DESCRIPTION -->
+
+            <p>
+
+                Create your professional portfolio and
+                showcase your skills, projects and
+                achievements.
+
+            </p>
+
+
+
+            <!-- CTA BUTTON -->
+
+            <a href="{{ url_for('register') }}"
+               class="final-cta-btn">
+
+                ⚡ CREATE MY PORTFOLIO
+
+            </a>
+
+
+        </div>
+
+    </section>
+
+
+
+    <!-- =========================================
+         FOOTER
+         ========================================= -->
+
+    <footer class="home-footer">
+
+
+        <div class="footer-content">
+
+
+            <!-- FOOTER BRAND -->
+
+            <div class="footer-brand">
+
+                <div class="footer-logo">
+
+                    Portfolio Publisher
+
+                </div>
+
+                <p>
+
+                    Create. Customize. Publish.
+
+                </p>
+
+            </div>
+
+
+
+            <!-- FOOTER LINKS -->
+
+            <div class="footer-links">
+
+                <a href="{{ url_for('home') }}">
+                    Home
+                </a>
+
+                <a href="#about">
+                    About
+                </a>
+
+                <a href="{{ url_for('login') }}">
+                    Login
+                </a>
+
+                <a href="{{ url_for('register') }}">
+                    Get Started
+                </a>
+
+            </div>
+
+
+        </div>
+
+
+
+        <!-- FOOTER BOTTOM -->
+
+        <div class="footer-bottom">
+
+            <span>
+                © 2026 Portfolio Publisher
+            </span>
+
+            <span>
+                Built with ✦
+            </span>
+
+        </div>
+
+
+    </footer>
+
 
 
 </body>
+
 </html>

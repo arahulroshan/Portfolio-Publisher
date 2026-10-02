@@ -25,7 +25,456 @@
     }
 
 </style>
+<style>
 
+:root {
+
+    /* USER SELECTED THEME COLOR */
+    --theme-color:
+        {{ theme["theme_color"] if theme else "#8b5cf6" }};
+
+    /* USER SELECTED BACKGROUND COLOR */
+    --bg-color:
+        {{ theme["background_color"] if theme else "#050509" }};
+
+    --white: #ffffff;
+
+    --muted: #aaa7b8;
+
+    --card: rgba(255,255,255,0.045);
+
+    --border: rgba(255,255,255,0.10);
+
+}
+
+
+/* =========================================
+   USER SELECTED FONT
+   ========================================= */
+
+body {
+
+    font-family:
+        '{{ theme["font_style"] if theme else "Outfit" }}',
+        sans-serif;
+
+}
+
+
+/* =========================================
+   USER SELECTED BACKGROUND STYLE
+   ========================================= */
+
+{% if theme and theme["background_style"] == "blue" %}
+
+body {
+
+    background:
+        radial-gradient(
+            circle at 15% 20%,
+            rgba(59,130,246,0.28),
+            transparent 35%
+        ),
+        radial-gradient(
+            circle at 85% 75%,
+            rgba(37,99,235,0.20),
+            transparent 35%
+        ),
+        linear-gradient(
+            135deg,
+            #020617,
+            {{ theme["background_color"] if theme else "#050509" }},
+            #000000
+        );
+
+}
+
+{% elif theme and theme["background_style"] == "green" %}
+
+body {
+
+    background:
+        radial-gradient(
+            circle at 15% 20%,
+            rgba(34,197,94,0.25),
+            transparent 35%
+        ),
+        radial-gradient(
+            circle at 85% 75%,
+            rgba(16,185,129,0.18),
+            transparent 35%
+        ),
+        linear-gradient(
+            135deg,
+            #020d08,
+            {{ theme["background_color"] if theme else "#050509" }},
+            #000000
+        );
+
+}
+
+{% elif theme and theme["background_style"] == "pink" %}
+
+body {
+
+    background:
+        radial-gradient(
+            circle at 15% 20%,
+            rgba(236,72,153,0.28),
+            transparent 35%
+        ),
+        radial-gradient(
+            circle at 85% 75%,
+            rgba(219,39,119,0.20),
+            transparent 35%
+        ),
+        linear-gradient(
+            135deg,
+            #12020c,
+            {{ theme["background_color"] if theme else "#050509" }},
+            #000000
+        );
+
+}
+
+{% elif theme and theme["background_style"] == "cyan" %}
+
+body {
+
+    background:
+        radial-gradient(
+            circle at 15% 20%,
+            rgba(6,182,212,0.25),
+            transparent 35%
+        ),
+        radial-gradient(
+            circle at 85% 75%,
+            rgba(14,165,233,0.18),
+            transparent 35%
+        ),
+        linear-gradient(
+            135deg,
+            #001014,
+            {{ theme["background_color"] if theme else "#050509" }},
+            #000000
+        );
+
+}
+
+{% elif theme and theme["background_style"] == "sunset" %}
+
+body {
+
+    background:
+        radial-gradient(
+            circle at 15% 20%,
+            rgba(249,115,22,0.28),
+            transparent 35%
+        ),
+        radial-gradient(
+            circle at 85% 75%,
+            rgba(236,72,153,0.22),
+            transparent 35%
+        ),
+        linear-gradient(
+            135deg,
+            #160704,
+            {{ theme["background_color"] if theme else "#050509" }},
+            #050509
+        );
+
+}
+
+{% else %}
+
+body {
+
+    /* DEFAULT PURPLE */
+
+    background:
+        radial-gradient(
+            circle at 15% 20%,
+            rgba(139,92,246,0.28),
+            transparent 35%
+        ),
+        radial-gradient(
+            circle at 85% 75%,
+            rgba(192,38,211,0.20),
+            transparent 35%
+        ),
+        linear-gradient(
+            135deg,
+            #080612,
+            {{ theme["background_color"] if theme else "#050509" }},
+            #000000
+        );
+
+}
+
+{% endif %}
+
+
+/* =========================================
+   BACKGROUND COLOR + THEME VARIABLES
+   ========================================= */
+
+body {
+
+    color: var(--white);
+
+    min-height: 100vh;
+
+    overflow-x: hidden;
+
+}
+
+
+/* =========================================
+   GRID
+   ========================================= */
+
+.grid {
+
+    background-image:
+
+        linear-gradient(
+            color-mix(
+                in srgb,
+                var(--theme-color) 18%,
+                transparent
+            ) 1px,
+            transparent 1px
+        ),
+
+        linear-gradient(
+            90deg,
+            color-mix(
+                in srgb,
+                var(--theme-color) 18%,
+                transparent
+            ) 1px,
+            transparent 1px
+        );
+
+}
+
+
+/* =========================================
+   ORBS
+   ========================================= */
+
+.orb {
+
+    background:
+
+        radial-gradient(
+            circle,
+            color-mix(
+                in srgb,
+                var(--theme-color) 45%,
+                transparent
+            ),
+            transparent 70%
+        );
+
+}
+
+
+/* =========================================
+   THEME COLOR USAGE
+   ========================================= */
+
+.logo {
+
+    color: var(--theme-color);
+
+    text-shadow:
+        0 0 15px
+        color-mix(
+            in srgb,
+            var(--theme-color) 65%,
+            transparent
+        );
+
+}
+
+
+.nav-links a:hover {
+
+    color: var(--theme-color);
+
+    text-shadow:
+        0 0 12px var(--theme-color);
+
+}
+
+
+.badge {
+
+    border-color:
+        color-mix(
+            in srgb,
+            var(--theme-color) 55%,
+            transparent
+        );
+
+    color: var(--theme-color);
+
+}
+
+
+.hero h1 span {
+
+    color: var(--theme-color);
+
+    text-shadow:
+        0 0 25px
+        color-mix(
+            in srgb,
+            var(--theme-color) 60%,
+            transparent
+        );
+
+}
+
+
+.btn-primary {
+
+    background: var(--theme-color);
+
+    box-shadow:
+        0 0 25px
+        color-mix(
+            in srgb,
+            var(--theme-color) 35%,
+            transparent
+        );
+
+}
+
+
+.btn-outline {
+
+    border-color:
+        color-mix(
+            in srgb,
+            var(--theme-color) 60%,
+            transparent
+        );
+
+    color: var(--theme-color);
+
+}
+
+
+.social a:hover {
+
+    color: var(--theme-color);
+
+    border-color: var(--theme-color);
+
+}
+
+
+.section-title span {
+
+    color: var(--theme-color);
+
+}
+
+
+.info-item small {
+
+    color: var(--theme-color);
+
+}
+
+
+.timeline {
+
+    border-left-color:
+        color-mix(
+            in srgb,
+            var(--theme-color) 40%,
+            transparent
+        );
+
+}
+
+
+.timeline-item::before {
+
+    background: var(--theme-color);
+
+    box-shadow:
+        0 0 15px var(--theme-color);
+
+}
+
+
+.timeline-item .institution {
+
+    color: var(--theme-color);
+
+}
+
+
+.tech {
+
+    color: var(--theme-color);
+
+}
+
+
+.small-btn {
+
+    border-color:
+        color-mix(
+            in srgb,
+            var(--theme-color) 45%,
+            transparent
+        );
+
+    color: var(--theme-color);
+
+}
+
+
+.skill {
+
+    background:
+        color-mix(
+            in srgb,
+            var(--theme-color) 9%,
+            transparent
+        );
+
+    border-color:
+        color-mix(
+            in srgb,
+            var(--theme-color) 30%,
+            transparent
+        );
+
+}
+
+
+.skill:hover {
+
+    color: var(--theme-color);
+
+    border-color: var(--theme-color);
+
+}
+
+
+footer span {
+
+    color: var(--theme-color);
+
+}
+
+</style>
     <style>
 
         :root {

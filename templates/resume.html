@@ -17,6 +17,22 @@
 
 <body>
 
+    <!-- BACKGROUND EFFECTS -->
+
+    <div class="neon-particles" aria-hidden="true">
+
+        <span></span>
+        <span></span>
+        <span></span>
+        <span></span>
+        <span></span>
+        <span></span>
+
+    </div>
+
+    <div class="neon-lightning" aria-hidden="true"></div>
+
+
     <!-- NAVBAR -->
 
     <nav class="navbar">
@@ -42,16 +58,20 @@
 
     <!-- RESUME SECTION -->
 
-    <section class="dashboard">
+    <section class="dashboard resume-page">
 
         <div class="dashboard-header">
 
+            <div class="resume-page-icon">
+                📄
+            </div>
+
             <h1>
-                My Resume 📄
+                My Resume
             </h1>
 
             <p>
-                Upload and manage your resume.
+                Upload and manage your professional resume.
             </p>
 
         </div>
@@ -59,11 +79,20 @@
 
         <!-- UPLOAD RESUME -->
 
-        <div class="auth-box project-form-box">
+        <div class="auth-box project-form-box resume-upload-box">
+
+            <div class="resume-section-icon">
+                📤
+            </div>
 
             <h2>
                 Upload Resume
             </h2>
+
+            <p class="resume-help-text">
+                Upload your latest resume in PDF, DOC or DOCX format.
+            </p>
+
 
             <form method="POST"
                   enctype="multipart/form-data">
@@ -79,8 +108,12 @@
                     required
                 >
 
+
                 <button type="submit">
-                    📤 Upload Resume
+
+                    <span>⚡</span>
+                    UPLOAD RESUME
+
                 </button>
 
             </form>
@@ -94,41 +127,60 @@
 
         <div class="dashboard-header project-list-title">
 
+            <div class="section-label">
+                ✦ YOUR DOCUMENT
+            </div>
+
             <h1>
                 Current Resume
             </h1>
 
+            <p>
+                Your uploaded resume is ready to view.
+            </p>
+
         </div>
 
 
-        <div class="project-grid">
+        <div class="project-grid resume-grid">
 
-            <div class="project-card">
+            <div class="project-card resume-card">
+
+                <div class="resume-card-icon">
+                    📄
+                </div>
 
                 <div class="project-content">
 
                     <h2>
-                        📄 {{ resume["resume_file"] }}
+                        {{ resume["resume_file"] }}
                     </h2>
 
-                    <br>
-
-                    <a
-                        href="{{ url_for('static', filename='images/resumes/' + resume['resume_file']) }}"
-                        target="_blank"
-                        class="project-btn"
-                    >
-                        👁️ View Resume
-                    </a>
+                    <p class="resume-file-info">
+                        Your current professional resume
+                    </p>
 
 
-                    <a
-                        href="{{ url_for('delete_resume') }}"
-                        class="project-btn delete-btn"
-                        onclick="return confirm('Are you sure you want to delete your resume?');"
-                    >
-                        🗑️ Delete Resume
-                    </a>
+                    <div class="project-buttons">
+
+                        <a
+                            href="{{ url_for('static', filename='images/resumes/' + resume['resume_file']) }}"
+                            target="_blank"
+                            class="project-btn"
+                        >
+                            👁️ View Resume
+                        </a>
+
+
+                        <a
+                            href="{{ url_for('delete_resume') }}"
+                            class="project-btn delete-btn"
+                            onclick="return confirm('Are you sure you want to delete your resume?');"
+                        >
+                            🗑️ Delete Resume
+                        </a>
+
+                    </div>
 
                 </div>
 
@@ -138,14 +190,18 @@
 
         {% else %}
 
-        <div class="no-projects">
+        <div class="no-projects resume-empty">
+
+            <div class="resume-empty-icon">
+                📄
+            </div>
 
             <h2>
-                No Resume Uploaded Yet 📄
+                No Resume Uploaded Yet
             </h2>
 
             <p>
-                Upload your resume using the form above.
+                Upload your professional resume using the form above.
             </p>
 
         </div>
