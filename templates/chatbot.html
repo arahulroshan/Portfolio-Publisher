@@ -16,27 +16,30 @@
 }
 
 body {
-
     margin: 0;
-
     min-height: 100vh;
 
     background:
         radial-gradient(
-            circle at 20% 20%,
-            rgba(124, 58, 237, 0.18),
+            circle at 50% 15%,
+            rgba(124, 58, 237, 0.24),
+            transparent 35%
+        ),
+        radial-gradient(
+            circle at 15% 80%,
+            rgba(192, 38, 211, 0.16),
             transparent 30%
         ),
         radial-gradient(
-            circle at 80% 80%,
-            rgba(192, 38, 211, 0.15),
-            transparent 30%
+            circle at 90% 60%,
+            rgba(168, 85, 247, 0.10),
+            transparent 28%
         ),
-        #050509;
+        #080612;
 
     color: white;
 
-    font-family: Arial, sans-serif;
+    font-family: "Outfit", Arial, sans-serif;
 
     display: flex;
 
@@ -45,9 +48,296 @@ body {
     align-items: center;
 
     padding: 20px;
+
+    overflow: hidden;
+
+    position: relative;
+}
+.chatbot-back-dashboard {
+    position: fixed !important;
+
+    left: 50% !important;
+    right: auto !important;
+    bottom: 18px !important;
+    top: auto !important;
+
+    transform: translateX(-50%) !important;
+
+    z-index: 99999 !important;
+
+    display: block !important;
+
+    width: max-content !important;
+
+    color: #ffffff !important;
+    text-decoration: none !important;
+
+    font-size: 15px;
+    font-weight: 600;
+
+    padding: 10px 20px;
+
+    border: 1px solid rgba(255, 255, 255, 0.6);
+    border-radius: 10px;
+
+    background: rgba(8, 6, 18, 0.75);
+
+    backdrop-filter: blur(8px);
+
+    text-align: center;
+
+    text-shadow:
+        0 0 6px #ffffff,
+        0 0 12px #c084fc;
+
+    box-shadow:
+        0 0 8px rgba(255, 255, 255, 0.25),
+        0 0 18px rgba(192, 132, 252, 0.4);
+
+    transition: 0.3s ease;
 }
 
+.chatbot-back-dashboard:hover {
+    color: #ffffff !important;
+    border-color: #ffffff;
 
+    box-shadow:
+        0 0 10px #ffffff,
+        0 0 25px #c084fc;
+
+    transform: translateX(-50%) translateY(-3px) !important;
+}
+/* ================= NEON PARTICLES ================= */
+
+.chatbot-particles {
+    position: fixed;
+    inset: 0;
+    overflow: hidden;
+    pointer-events: none;
+    z-index: 0;
+}
+
+.chatbot-particles span {
+    position: absolute;
+
+    width: 3px;
+    height: 3px;
+
+    border-radius: 50%;
+
+    background: #e9d5ff;
+
+    box-shadow:
+        0 0 5px #ffffff,
+        0 0 12px #c084fc,
+        0 0 22px #7c3aed;
+
+    opacity: 0;
+
+    animation: chatbotParticle 9s ease-in-out infinite;
+}
+
+.chatbot-particles span:nth-child(1) {
+    left: 8%;
+    top: 75%;
+    animation-delay: 0s;
+}
+
+.chatbot-particles span:nth-child(2) {
+    left: 22%;
+    top: 30%;
+    animation-delay: 2s;
+}
+
+.chatbot-particles span:nth-child(3) {
+    left: 42%;
+    top: 80%;
+    animation-delay: 4s;
+}
+
+.chatbot-particles span:nth-child(4) {
+    left: 65%;
+    top: 25%;
+    animation-delay: 1s;
+}
+
+.chatbot-particles span:nth-child(5) {
+    left: 82%;
+    top: 70%;
+    animation-delay: 5s;
+}
+
+.chatbot-particles span:nth-child(6) {
+    left: 92%;
+    top: 40%;
+    animation-delay: 3s;
+}
+
+@keyframes chatbotParticle {
+
+    0% {
+        transform: translate3d(0, 0, 0) scale(.5);
+        opacity: 0;
+    }
+
+    15% {
+        opacity: .8;
+    }
+
+    30% {
+        transform: translate3d(70px, -55px, 0) scale(1);
+        opacity: 1;
+    }
+
+    50% {
+        transform: translate3d(-40px, -120px, 0) scale(.8);
+        opacity: .65;
+    }
+
+    70% {
+        transform: translate3d(100px, -190px, 0) scale(1.1);
+        opacity: .9;
+    }
+
+    100% {
+        transform: translate3d(-60px, -260px, 0) scale(.3);
+        opacity: 0;
+    }
+}
+/* ================= NEON LIGHTNING ================= */
+
+.chatbot-lightning {
+    position: fixed;
+
+    inset: 0;
+
+    overflow: hidden;
+
+    pointer-events: none;
+
+    z-index: 1;
+}
+
+.chatbot-lightning::before {
+
+    content: "";
+
+    position: absolute;
+
+    left: 10%;
+
+    top: -10%;
+
+    width: 4px;
+
+    height: 125%;
+
+    background: #c084fc;
+
+    clip-path: polygon(
+        50% 0%,
+        20% 12%,
+        65% 23%,
+        25% 35%,
+        70% 47%,
+        30% 59%,
+        75% 72%,
+        35% 84%,
+        60% 100%
+    );
+
+    box-shadow:
+        0 0 5px #ffffff,
+        0 0 12px #c084fc,
+        0 0 25px #a855f7,
+        0 0 45px #7c3aed;
+
+    transform: rotate(22deg);
+
+    opacity: .35;
+
+    animation: chatbotElectric 3s infinite;
+}
+
+.chatbot-lightning::after {
+
+    content: "";
+
+    position: absolute;
+
+    right: 10%;
+
+    top: -10%;
+
+    width: 4px;
+
+    height: 125%;
+
+    background: #e879f9;
+
+    clip-path: polygon(
+        45% 0%,
+        75% 13%,
+        30% 25%,
+        70% 38%,
+        25% 51%,
+        75% 64%,
+        35% 77%,
+        70% 89%,
+        45% 100%
+    );
+
+    box-shadow:
+        0 0 5px #ffffff,
+        0 0 12px #e879f9,
+        0 0 25px #c026d3,
+        0 0 50px #a21caf;
+
+    transform: rotate(-20deg);
+
+    opacity: .25;
+
+    animation: chatbotElectric 3.5s infinite reverse;
+}
+
+@keyframes chatbotElectric {
+
+    0%, 100% {
+        opacity: .12;
+        filter: brightness(.7);
+    }
+
+    20% {
+        opacity: .3;
+    }
+
+    45% {
+        opacity: .75;
+        filter: brightness(1.4);
+    }
+
+    48% {
+        opacity: 1;
+        filter: brightness(2);
+    }
+
+    51% {
+        opacity: .15;
+    }
+
+    54% {
+        opacity: .8;
+        filter: brightness(1.7);
+    }
+
+    70% {
+        opacity: .3;
+    }
+
+    85% {
+        opacity: .6;
+    }
+}
 /* ================= MAIN APP ================= */
 
 .app-container {
@@ -421,7 +711,11 @@ body {
     border-radius: 10px;
 }
 
-
+.app-container,
+.chatbot-back-dashboard {
+    position: relative;
+    z-index: 2;
+}
 /* ================= MOBILE ================= */
 
 @media (max-width: 700px) {
@@ -495,7 +789,19 @@ body {
 
 
 <body>
-    <a href="{{ url_for('dashboard') }}" class="chatbot-back-dashboard">
+
+<div class="chatbot-particles" aria-hidden="true">
+    <span></span>
+    <span></span>
+    <span></span>
+    <span></span>
+    <span></span>
+    <span></span>
+</div>
+
+<div class="chatbot-lightning" aria-hidden="true"></div>
+
+<a href="{{ url_for('dashboard') }}" class="chatbot-back-dashboard">
     ← Back to Dashboard
 </a>
 
