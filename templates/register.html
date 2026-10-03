@@ -42,169 +42,248 @@
     <!-- =========================================
          REGISTER CONTAINER
          ========================================= -->
-<div class="auth-container">
+
+    <div class="auth-container">
 
 
-    <!-- REGISTER BOX -->
+        <!-- =====================================
+             REGISTER BOX
+             ===================================== -->
 
-    <div class="auth-box register-box">
+        <div class="auth-box register-box">
 
-        <!-- LOGO -->
 
-        <div class="register-logo">
+            <!-- LOGO -->
 
-            <div class="register-logo-ring"></div>
+            <div class="register-logo">
 
-            <span>P</span>
+                <div class="register-logo-ring"></div>
+
+                <span>P</span>
+
+            </div>
+
+
+            <!-- TITLE -->
+
+            <h1>
+                Create Account
+            </h1>
+
+
+            <!-- SUBTITLE -->
+
+            <p class="auth-subtitle">
+
+                Join Portfolio Publisher and build your
+                professional portfolio.
+
+            </p>
+
+
+
+            <!-- =================================
+                 REGISTER FORM
+                 ================================= -->
+
+            <form method="POST">
+
+
+                <!-- USERNAME -->
+
+                <div class="form-group">
+
+                    <label for="username">
+                        Username
+                    </label>
+
+                    <input
+                        type="text"
+                        id="username"
+                        name="username"
+                        placeholder="Enter username"
+                        required>
+
+                </div>
+
+
+
+                <!-- EMAIL -->
+
+                <div class="form-group">
+
+                    <label for="email">
+                        Email
+                    </label>
+
+                    <input
+                        type="email"
+                        id="email"
+                        name="email"
+                        placeholder="Enter email"
+                        required>
+
+                </div>
+
+
+
+                <!-- PASSWORD -->
+
+                <div class="form-group">
+
+                    <label for="password">
+                        Password
+                    </label>
+
+                    <div class="password-wrapper">
+
+                        <input
+                            type="password"
+                            id="password"
+                            name="password"
+                            placeholder="Enter password"
+                            required>
+
+                        <button
+                            type="button"
+                            class="password-toggle"
+                            onclick="togglePassword('password', this)"
+                            aria-label="Show password">
+
+                            👁️
+
+                        </button>
+
+                    </div>
+
+                </div>
+
+
+
+                <!-- CONFIRM PASSWORD -->
+
+                <div class="form-group">
+
+                    <label for="confirm_password">
+                        Confirm Password
+                    </label>
+
+                    <div class="password-wrapper">
+
+                        <input
+                            type="password"
+                            id="confirm_password"
+                            name="confirm_password"
+                            placeholder="Confirm password"
+                            required>
+
+                        <button
+                            type="button"
+                            class="password-toggle"
+                            onclick="togglePassword('confirm_password', this)"
+                            aria-label="Show password">
+
+                            👁️
+
+                        </button>
+
+                    </div>
+
+                </div>
+
+
+
+                <!-- CREATE ACCOUNT BUTTON -->
+
+                <button
+                    type="submit"
+                    class="register-submit-btn">
+
+                    <span>⚡</span>
+
+                    CREATE ACCOUNT
+
+                </button>
+
+
+            </form>
+
+
+
+            <!-- LOGIN LINK -->
+
+            <p class="login-text">
+
+                Already have an account?
+
+                <a href="{{ url_for('login') }}">
+                    Login
+                </a>
+
+            </p>
+
 
         </div>
 
 
-        <h1>
-            Create Account
-        </h1>
 
+        <!-- =====================================
+             BACK TO HOME
+             ===================================== -->
 
-        <p class="auth-subtitle">
+        <a href="{{ url_for('home') }}"
+           class="auth-back-home">
 
-            Join Portfolio Publisher and build your
-            professional portfolio.
+            ← Back to Home
 
-        </p>
-
-
-        <form method="POST">
-
-            <div class="form-group">
-
-                <label for="username">
-                    Username
-                </label>
-
-                <input
-                    type="text"
-                    id="username"
-                    name="username"
-                    placeholder="Enter username"
-                    required>
-
-            </div>
-
-
-            <div class="form-group">
-
-                <label for="email">
-                    Email
-                </label>
-
-                <input
-                    type="email"
-                    id="email"
-                    name="email"
-                    placeholder="Enter email"
-                    required>
-
-            </div>
-
-
-            <div class="form-group">
-
-                <label for="password">
-                    Password
-                </label>
-
-                <div class="password-wrapper">
-
-                    <input
-                        type="password"
-                        id="password"
-                        name="password"
-                        placeholder="Enter password"
-                        required>
-
-                    <button
-                        type="button"
-                        class="password-toggle"
-                        onclick="togglePassword('password', this)">
-
-                        👁️
-
-                    </button>
-
-                </div>
-
-            </div>
-
-
-            <div class="form-group">
-
-                <label for="confirm_password">
-                    Confirm Password
-                </label>
-
-                <div class="password-wrapper">
-
-                    <input
-                        type="password"
-                        id="confirm_password"
-                        name="confirm_password"
-                        placeholder="Confirm password"
-                        required>
-
-                    <button
-                        type="button"
-                        class="password-toggle"
-                        onclick="togglePassword('confirm_password', this)">
-
-                        👁️
-
-                    </button>
-
-                </div>
-
-            </div>
-
-
-            <button
-                type="submit"
-                class="register-submit-btn">
-
-                <span>⚡</span>
-
-                CREATE ACCOUNT
-
-            </button>
-
-        </form>
-
-
-        <p class="login-text">
-
-            Already have an account?
-
-            <a href="{{ url_for('login') }}">
-                Login
-            </a>
-
-        </p>
+        </a>
 
 
     </div>
 
 
-    <!-- BACK TO HOME -->
 
-    <a href="{{ url_for('home') }}"
-       class="auth-back-home">
+    <!-- =========================================
+         PASSWORD TOGGLE JAVASCRIPT
+         ========================================= -->
 
-        ← Back to Home
+    <script>
 
-    </a>
+        function togglePassword(fieldId, button) {
 
-
-</div>
-    
-
+            const passwordField =
+                document.getElementById(fieldId);
 
 
-        
+            if (passwordField.type === "password") {
+
+                passwordField.type = "text";
+
+                button.textContent = "🙈";
+
+                button.setAttribute(
+                    "aria-label",
+                    "Hide password"
+                );
+
+            } else {
+
+                passwordField.type = "password";
+
+                button.textContent = "👁️";
+
+                button.setAttribute(
+                    "aria-label",
+                    "Show password"
+                );
+
+            }
+
+        }
+
+    </script>
+
+
+</body>
+
+</html>

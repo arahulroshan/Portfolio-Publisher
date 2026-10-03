@@ -7003,3 +7003,271 @@ body::after {
     }
 
 }
+/* =========================================
+   NEON FLOATING PARTICLES
+   ========================================= */
+
+.portfolio-particles {
+    position: fixed;
+    inset: 0;
+    overflow: hidden;
+    pointer-events: none;
+    z-index: 0;
+}
+
+.portfolio-particles span {
+    position: absolute;
+    width: 3px;
+    height: 3px;
+    border-radius: 50%;
+    background: var(--theme-color);
+    box-shadow: 0 0 8px var(--theme-color);
+    opacity: 0.45;
+    animation: particleFloat 12s linear infinite;
+}
+
+.portfolio-particles span:nth-child(1) {
+    left: 8%;
+    top: 80%;
+    animation-delay: 0s;
+}
+
+.portfolio-particles span:nth-child(2) {
+    left: 18%;
+    top: 60%;
+    animation-delay: 2s;
+}
+
+.portfolio-particles span:nth-child(3) {
+    left: 28%;
+    top: 90%;
+    animation-delay: 4s;
+}
+
+.portfolio-particles span:nth-child(4) {
+    left: 38%;
+    top: 70%;
+    animation-delay: 1s;
+}
+
+.portfolio-particles span:nth-child(5) {
+    left: 48%;
+    top: 85%;
+    animation-delay: 5s;
+}
+
+.portfolio-particles span:nth-child(6) {
+    left: 58%;
+    top: 65%;
+    animation-delay: 3s;
+}
+
+.portfolio-particles span:nth-child(7) {
+    left: 68%;
+    top: 90%;
+    animation-delay: 6s;
+}
+
+.portfolio-particles span:nth-child(8) {
+    left: 78%;
+    top: 75%;
+    animation-delay: 2s;
+}
+
+.portfolio-particles span:nth-child(9) {
+    left: 88%;
+    top: 85%;
+    animation-delay: 7s;
+}
+
+.portfolio-particles span:nth-child(10) {
+    left: 95%;
+    top: 60%;
+    animation-delay: 4s;
+}
+
+.portfolio-particles span:nth-child(11) {
+    left: 12%;
+    top: 40%;
+    animation-delay: 8s;
+}
+
+.portfolio-particles span:nth-child(12) {
+    left: 82%;
+    top: 45%;
+    animation-delay: 5s;
+}
+
+@keyframes particleFloat {
+
+    0% {
+        transform: translateY(40px) translateX(0);
+        opacity: 0;
+    }
+
+    20% {
+        opacity: 0.45;
+    }
+
+    50% {
+        transform: translateY(-180px) translateX(25px);
+        opacity: 0.6;
+    }
+
+    80% {
+        opacity: 0.35;
+    }
+
+    100% {
+        transform: translateY(-350px) translateX(-20px);
+        opacity: 0;
+    }
+}
+
+
+/* =========================================
+   NEON THUNDER / LIGHTNING
+   ========================================= */
+
+.portfolio-lightning {
+    position: fixed;
+    top: 0;
+    left: 8%;
+    width: 2px;
+    height: 180px;
+    z-index: 0;
+    pointer-events: none;
+
+    opacity: 0;
+
+    transform: rotate(18deg);
+
+    background: linear-gradient(
+        to bottom,
+        transparent,
+        var(--theme-color),
+        #ffffff,
+        transparent
+    );
+
+    filter: drop-shadow(
+        0 0 8px var(--theme-color)
+    );
+
+    animation: neonLightning 7s infinite;
+}
+
+.portfolio-lightning::before,
+.portfolio-lightning::after {
+    content: "";
+    position: absolute;
+    width: 2px;
+    background: var(--theme-color);
+    box-shadow: 0 0 8px var(--theme-color);
+}
+
+.portfolio-lightning::before {
+    height: 90px;
+    top: 55px;
+    left: 18px;
+    transform: rotate(38deg);
+}
+
+.portfolio-lightning::after {
+    height: 70px;
+    top: 105px;
+    left: -14px;
+    transform: rotate(-42deg);
+}
+
+@keyframes neonLightning {
+
+    0%,
+    72%,
+    100% {
+        opacity: 0;
+    }
+
+    74% {
+        opacity: 0.8;
+    }
+
+    75% {
+        opacity: 0.1;
+    }
+
+    76% {
+        opacity: 0.9;
+    }
+
+    78% {
+        opacity: 0;
+    }
+}
+
+
+/* Keep portfolio content above effects */
+
+.navbar,
+main,
+section,
+.hero,
+footer {
+    position: relative;
+    z-index: 1;
+}
+/* =========================================
+   REGISTER PASSWORD EYE TOGGLE
+   ========================================= */
+
+.password-wrapper {
+    position: relative;
+    width: 100%;
+}
+
+.password-wrapper input {
+    width: 100%;
+    padding-right: 50px !important;
+    box-sizing: border-box;
+}
+
+.password-wrapper .password-toggle {
+    position: absolute !important;
+
+    right: 10px !important;
+    top: 50% !important;
+
+    transform: translateY(-50%) !important;
+
+    width: 35px !important;
+    min-width: 35px !important;
+
+    height: 35px !important;
+
+    padding: 0 !important;
+    margin: 0 !important;
+
+    border: none !important;
+    border-radius: 50% !important;
+
+    background: transparent !important;
+    box-shadow: none !important;
+
+    color: #d8b4fe !important;
+
+    font-size: 18px !important;
+
+    line-height: 35px !important;
+
+    cursor: pointer;
+
+    z-index: 10;
+}
+
+.password-wrapper .password-toggle:hover {
+    background: transparent !important;
+
+    color: #ffffff !important;
+
+    box-shadow: none !important;
+}
