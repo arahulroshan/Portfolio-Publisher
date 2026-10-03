@@ -20,13 +20,17 @@ app.secret_key = "portfolio-publisher-secret-key"
 # =========================================================
 
 def get_db():
-
-    conn = sqlite3.connect("portfolio.db")
-
+    conn = sqlite3.connect(
+        "portfolio.db",
+        timeout=30,
+        check_same_thread=False
+    )
     conn.row_factory = sqlite3.Row
 
-    return conn
+    conn.execute("PRAGMA busy_timeout = 30000")
+    conn.execute("PRAGMA journal_mode = WAL")
 
+    return conn
 
 
 # =========================================================
@@ -368,21 +372,21 @@ def register():
 # =========================================================
 # LOGIN
 # =========================================================
-
-
-
-    # =========================================================
+# =========================================================
 # LOGIN
 # =========================================================
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
 
+    print("LOGIN ROUTE HIT")
+
     if request.method == "POST":
+        print("LOGIN POST HIT")
 
         username = request.form["username"].strip()
         password = request.form["password"]
-
+    
         conn = get_db()
 
         user = conn.execute(
@@ -396,21 +400,36 @@ def login():
 
         conn.close()
 
-        # Check login
+        # DEBUG
+        print("LOGIN USERNAME:", repr(username))
+        print("DB USER:", user["username"] if user else None)
+
+        if user:
+            print(
+                "PASSWORD CHECK:",
+                check_password_hash(
+                    user["password"],
+                    password
+                )
+            )
+
+        # CHECK LOGIN
         if user and check_password_hash(
             user["password"],
             password
         ):
-
             session["user_id"] = user["id"]
             session["username"] = user["username"]
 
+            print("LOGIN SUCCESS")
+
             return redirect(url_for("dashboard"))
+
+        print("LOGIN FAILED")
 
         return "Invalid username or password!"
 
     return render_template("login.html")
-
 
 # =========================================================
 # PROFILE
