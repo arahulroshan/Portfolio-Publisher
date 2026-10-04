@@ -1,5 +1,6 @@
 from flask import Flask, render_template, request, redirect, url_for, session
-import sqlite3
+import psycopg2
+from psycopg2.extras import RealDictCursor
 import os
 from werkzeug.security import generate_password_hash, check_password_hash
 import qrcode
@@ -20,20 +21,14 @@ app.secret_key = "portfolio-publisher-secret-key"
 # =========================================================
 
 def get_db():
-    conn = sqlite3.connect(
-        "portfolio.db",
-        timeout=30,
-        check_same_thread=False
+    conn = psycopg2.connect(
+        os.environ.get("DATABASE_URL")
     )
-    conn.row_factory = sqlite3.Row
-
-    conn.execute("PRAGMA busy_timeout = 30000")
-    conn.execute("PRAGMA journal_mode = WAL")
-
     return conn
 
 
-# =========================================================
+
+           # =========================================================
 # CREATE DATABASE
 # =========================================================
 
@@ -41,97 +36,64 @@ def init_db():
 
     conn = get_db()
 
-    try:
-        conn.execute(
-            "ALTER TABLE themes ADD COLUMN font_style TEXT DEFAULT 'Outfit'"
-        )
-    except sqlite3.OperationalError:
-        pass
-    try:
-        conn.execute(
-            "ALTER TABLE themes ADD COLUMN background_style TEXT DEFAULT 'purple'"
-        )
-    except sqlite3.OperationalError:
-        pass
-    try:
-        conn.execute(
-            "ALTER TABLE profiles ADD COLUMN profile_image TEXT"
-    )
-    except sqlite3.OperationalError:
-        pass
-
-    # ---------------- USERS TABLE ----------------
+    # =====================================================
+    # USERS
+    # =====================================================
 
     conn.execute("""
         CREATE TABLE IF NOT EXISTS users (
-
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-
+            id SERIAL PRIMARY KEY,
             username TEXT UNIQUE NOT NULL,
-
             email TEXT NOT NULL,
-
-            password TEXT NOT NULL
-
+            password TEXT NOT NULL,
+            is_published INTEGER DEFAULT 0
         )
     """)
-    # Add publish status to existing users table
-
-    try:
-        conn.execute(
-            "ALTER TABLE users ADD COLUMN is_published INTEGER DEFAULT 0"
-    )
-    except sqlite3.OperationalError:
-        pass
 
 
-    # ---------------- PROFILES TABLE ----------------
+    # =====================================================
+    # PROFILES
+    # =====================================================
 
     conn.execute("""
         CREATE TABLE IF NOT EXISTS profiles (
-
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-
+            id SERIAL PRIMARY KEY,
             user_id INTEGER UNIQUE NOT NULL,
-
             full_name TEXT,
-
             phone TEXT,
-
             location TEXT,
-
             about TEXT,
-
             profile_image TEXT,
-
             FOREIGN KEY (user_id) REFERENCES users(id)
-
         )
     """)
+
+
+    # =====================================================
+    # EXPERIENCE
+    # =====================================================
+
     conn.execute("""
-    CREATE TABLE IF NOT EXISTS experience (
+        CREATE TABLE IF NOT EXISTS experience (
+            id SERIAL PRIMARY KEY,
+            user_id INTEGER NOT NULL,
+            company TEXT,
+            role TEXT,
+            start_date TEXT,
+            end_date TEXT,
+            description TEXT,
+            FOREIGN KEY (user_id) REFERENCES users(id)
+        )
+    """)
 
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
 
-        user_id INTEGER NOT NULL,
+    # =====================================================
+    # SOCIAL LINKS
+    # =====================================================
 
-        company TEXT,
-
-        role TEXT,
-
-        start_date TEXT,
-
-        end_date TEXT,
-
-        description TEXT,
-
-        FOREIGN KEY (user_id) REFERENCES users(id)
-
-    )
-""")
     conn.execute("""
         CREATE TABLE IF NOT EXISTS social_links (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            id SERIAL PRIMARY KEY,
             user_id INTEGER UNIQUE NOT NULL,
             linkedin TEXT,
             github TEXT,
@@ -141,155 +103,158 @@ def init_db():
         )
     """)
 
-    # ---------------- EDUCATION TABLE ----------------
+
+    # =====================================================
+    # EDUCATION
+    # =====================================================
 
     conn.execute("""
         CREATE TABLE IF NOT EXISTS education (
-
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-
+            id SERIAL PRIMARY KEY,
             user_id INTEGER NOT NULL,
-
             degree TEXT,
-
             institution TEXT,
-
             year TEXT,
-
             grade TEXT,
-
             FOREIGN KEY (user_id) REFERENCES users(id)
-
         )
     """)
 
 
-    # ---------------- SKILLS TABLE ----------------
+    # =====================================================
+    # SKILLS
+    # =====================================================
 
     conn.execute("""
         CREATE TABLE IF NOT EXISTS skills (
-
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-
+            id SERIAL PRIMARY KEY,
             user_id INTEGER NOT NULL,
-
-            skill_name TEXT NOT NULL,
-
+            skill_name TEXT,
             FOREIGN KEY (user_id) REFERENCES users(id)
-
         )
     """)
+
+
+    # =====================================================
+    # CERTIFICATES
+    # =====================================================
+
     conn.execute("""
-    CREATE TABLE IF NOT EXISTS certificates (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        user_id INTEGER NOT NULL,
-        certificate_name TEXT NOT NULL,
-        issuing_organization TEXT,
-        issue_date TEXT,
-        certificate_link TEXT,
-        FOREIGN KEY (user_id) REFERENCES users(id)
-    )
-""")
+        CREATE TABLE IF NOT EXISTS certificates (
+            id SERIAL PRIMARY KEY,
+            user_id INTEGER NOT NULL,
+            certificate_name TEXT,
+            issuing_organization TEXT,
+            issue_date TEXT,
+            certificate_link TEXT,
+            certificate_image TEXT,
+            FOREIGN KEY (user_id) REFERENCES users(id)
+        )
+    """)
+
+
+    # =====================================================
+    # RESUMES
+    # =====================================================
+
     conn.execute("""
         CREATE TABLE IF NOT EXISTS resumes (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            id SERIAL PRIMARY KEY,
             user_id INTEGER NOT NULL,
             resume_file TEXT,
             FOREIGN KEY (user_id) REFERENCES users(id)
         )
     """)
-    try:
-        conn.execute("""
-        
-            ALTER TABLE certificates
-            ADD COLUMN certificate_image TEXT
-        """)
-    except sqlite3.OperationalError:
-        pass
 
 
-    # ---------------- PROJECTS TABLE ----------------
+    # =====================================================
+    # PROJECTS
+    # =====================================================
 
     conn.execute("""
         CREATE TABLE IF NOT EXISTS projects (
-
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-
+            id SERIAL PRIMARY KEY,
             user_id INTEGER NOT NULL,
-
-            project_name TEXT NOT NULL,
-
+            project_name TEXT,
             description TEXT,
-
             technologies TEXT,
-
             github_link TEXT,
-
             live_link TEXT,
-
             project_image TEXT,
-
             FOREIGN KEY (user_id) REFERENCES users(id)
-
         )
     """)
-    conn.execute("""
-    CREATE TABLE IF NOT EXISTS project_images (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        project_id INTEGER NOT NULL,
-        image_name TEXT NOT NULL,
-        FOREIGN KEY (project_id) REFERENCES projects(id)
-    )
-""")
-        # ---------------- SOCIAL LINKS TABLE ----------------
+
+
+    # =====================================================
+    # PROJECT IMAGES
+    # =====================================================
 
     conn.execute("""
-        CREATE TABLE IF NOT EXISTS social_links (
-
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-
-            user_id INTEGER UNIQUE NOT NULL,
-
-            linkedin TEXT,
-
-            github TEXT,
-
-            email TEXT,
-
-            portfolio TEXT,
-
-            FOREIGN KEY (user_id) REFERENCES users(id)
-
+        CREATE TABLE IF NOT EXISTS project_images (
+            id SERIAL PRIMARY KEY,
+            project_id INTEGER NOT NULL,
+            image_name TEXT,
+            FOREIGN KEY (project_id) REFERENCES projects(id)
         )
     """)
-    # ---------------- THEMES TABLE ----------------
+
+
+    # =====================================================
+    # THEMES
+    # =====================================================
 
     conn.execute("""
         CREATE TABLE IF NOT EXISTS themes (
-
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-
+            id SERIAL PRIMARY KEY,
             user_id INTEGER UNIQUE NOT NULL,
-
             theme_color TEXT DEFAULT '#8b5cf6',
-
             background_color TEXT DEFAULT '#080612',
-
             font_style TEXT DEFAULT 'Outfit',
-
             background_style TEXT DEFAULT 'purple',
-
-           FOREIGN KEY (user_id) REFERENCES users(id)
-
-      )
+            FOREIGN KEY (user_id) REFERENCES users(id)
+        )
     """)
 
 
+    # =====================================================
+    # CHAT SESSIONS
+    # =====================================================
+
+    conn.execute("""
+        CREATE TABLE IF NOT EXISTS chat_sessions (
+            id SERIAL PRIMARY KEY,
+            user_id INTEGER NOT NULL,
+            title TEXT DEFAULT 'New Chat',
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (user_id) REFERENCES users(id)
+        )
+    """)
+
+
+    # =====================================================
+    # CHAT MESSAGES
+    # =====================================================
+
+    conn.execute("""
+        CREATE TABLE IF NOT EXISTS chat_messages (
+            id SERIAL PRIMARY KEY,
+            session_id INTEGER NOT NULL,
+            role TEXT NOT NULL,
+            message TEXT NOT NULL,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (session_id) REFERENCES chat_sessions(id)
+        )
+    """)
+
+
+    # =====================================================
+    # SAVE CHANGES
+    # =====================================================
+
     conn.commit()
-
     conn.close()
-
-
 # =========================================================
 # HOME PAGE
 # =========================================================
@@ -332,39 +297,34 @@ def register():
 
         try:
 
-            conn = get_db()
+    conn = get_db()
 
+    conn.execute(
+        """
+        INSERT INTO users
+        (
+            username,
+            email,
+            password
+        )
+        VALUES (%s, %s, %s)
+        """,
+        (
+            username,
+            email,
+            hashed_password
+        )
+    )
 
-            conn.execute(
-                """
-                INSERT INTO users
-                (
-                    username,
-                    email,
-                    password
-                )
-                VALUES (?, ?, ?)
-                """,
-                (
-                    username,
-                    email,
-                    hashed_password
-                )
-            )
+    conn.commit()
 
+    conn.close()
 
-            conn.commit()
+    return redirect(url_for("login"))
 
-            conn.close()
+except Exception:
 
-
-            return redirect(url_for("login"))
-
-
-        except sqlite3.IntegrityError:
-
-            return "Username already exists!"
-
+    return "Username already exists!"
 
     return render_template("register.html")
 
@@ -393,7 +353,7 @@ def login():
             """
             SELECT *
             FROM users
-            WHERE LOWER(TRIM(username)) = LOWER(TRIM(?))
+            WHERE LOWER(TRIM(username)) = LOWER(TRIM(%s))
             """,
             (username,)
         ).fetchone()
@@ -478,60 +438,72 @@ def profile():
 
         conn = get_db()
 
-        # Keep old image if no new image is uploaded
-        if image_filename:
+       # Keep old image if no new image is uploaded
+if image_filename:
 
-            conn.execute(
-                """
-                INSERT OR REPLACE INTO profiles
-                (
-                    user_id,
-                    full_name,
-                    phone,
-                    location,
-                    about,
-                    profile_image
-                )
-                VALUES (?, ?, ?, ?, ?, ?)
-                """,
-                (
-                    session["user_id"],
-                    full_name,
-                    phone,
-                    location,
-                    about,
-                    image_filename
-                )
-            )
+    conn.execute(
+        """
+        INSERT INTO profiles
+        (
+            user_id,
+            full_name,
+            phone,
+            location,
+            about,
+            profile_image
+        )
+        VALUES (%s, %s, %s, %s, %s, %s)
+        ON CONFLICT (user_id)
+        DO UPDATE SET
+            full_name = EXCLUDED.full_name,
+            phone = EXCLUDED.phone,
+            location = EXCLUDED.location,
+            about = EXCLUDED.about,
+            profile_image = EXCLUDED.profile_image
+        """,
+        (
+            session["user_id"],
+            full_name,
+            phone,
+            location,
+            about,
+            image_filename
+        )
+    )
 
-        else:
+else:
 
-            conn.execute(
-                """
-                INSERT OR REPLACE INTO profiles
-                (
-                    user_id,
-                    full_name,
-                    phone,
-                    location,
-                    about
-                )
-                VALUES (?, ?, ?, ?, ?)
-                """,
-                (
-                    session["user_id"],
-                    full_name,
-                    phone,
-                    location,
-                    about
-                )
-            )
+    conn.execute(
+        """
+        INSERT INTO profiles
+        (
+            user_id,
+            full_name,
+            phone,
+            location,
+            about
+        )
+        VALUES (%s, %s, %s, %s, %s)
+        ON CONFLICT (user_id)
+        DO UPDATE SET
+            full_name = EXCLUDED.full_name,
+            phone = EXCLUDED.phone,
+            location = EXCLUDED.location,
+            about = EXCLUDED.about
+        """,
+        (
+            session["user_id"],
+            full_name,
+            phone,
+            location,
+            about
+        )
+    )
 
-        conn.commit()
-        conn.close()
+conn.commit()
+conn.close()
 
-        return redirect(url_for("dashboard"))
-
+return redirect(url_for("dashboard"))
     return render_template("profile.html")
 @app.route("/experience", methods=["GET", "POST"])
 def experience():
@@ -560,7 +532,7 @@ def experience():
                 end_date,
                 description
             )
-            VALUES (?, ?, ?, ?, ?, ?)
+            VALUES (%s, %s, %s, %s, %s, %s)
             """,
             (
                 session["user_id"],
@@ -578,7 +550,7 @@ def experience():
         """
         SELECT *
         FROM experience
-        WHERE user_id = ?
+        WHERE user_id = %s
         ORDER BY id DESC
         """,
         (session["user_id"],)
@@ -590,67 +562,26 @@ def experience():
         "experience.html",
         experiences=experiences
     )
-# =========================================================
-# EDUCATION
-# =========================================================
-
-@app.route("/education", methods=["GET", "POST"])
-def education():
-
-    # Login check
-
-    if "user_id" not in session:
-
-        return redirect(url_for("login"))
-
-
-    if request.method == "POST":
-
-        degree = request.form["degree"]
-
-        institution = request.form["institution"]
-
-        year = request.form["year"]
-
-        grade = request.form["grade"]
-
-
-        conn = get_db()
-
-
-        conn.execute(
-            """
-            INSERT INTO education
-            (
-                user_id,
-                degree,
-                institution,
-                year,
-                grade
-            )
-            VALUES (?, ?, ?, ?, ?)
-            """,
-            (
-                session["user_id"],
-                degree,
-                institution,
-                year,
-                grade
-            )
-        )
-
-
-        conn.commit()
-
-        conn.close()
-
-
-        return redirect(url_for("dashboard"))
-
-
-    return render_template("education.html")
-
-
+    conn.execute(
+    """
+    INSERT INTO education
+    (
+        user_id,
+        degree,
+        institution,
+        year,
+        grade
+    )
+    VALUES (%s, %s, %s, %s, %s)
+    """,
+    (
+        session["user_id"],
+        degree,
+        institution,
+        year,
+        grade
+    )
+)
 # =========================================================
 # PROJECTS
 # =========================================================
@@ -686,7 +617,7 @@ def projects():
                 "static/images/projects/" + image_filename
             )
 
-        # ---------------- SAVE PROJECT ----------------
+       # ---------------- SAVE PROJECT ----------------
 
         conn = get_db()
 
@@ -702,7 +633,8 @@ def projects():
                 live_link,
                 project_image
             )
-            VALUES (?, ?, ?, ?, ?, ?, ?)
+            VALUES (%s, %s, %s, %s, %s, %s, %s)
+            RETURNING id
             """,
             (
                 session["user_id"],
@@ -716,7 +648,7 @@ def projects():
         )
 
         # Get newly created project ID
-        project_id = cursor.lastrowid
+        project_id = cursor.fetchone()[0]
 
         # ---------------- MULTIPLE SCREENSHOTS ----------------
 
@@ -739,7 +671,7 @@ def projects():
                         project_id,
                         image_name
                     )
-                    VALUES (?, ?)
+                    VALUES (%s, %s)
                     """,
                     (
                         project_id,
@@ -760,7 +692,7 @@ def projects():
         """
         SELECT *
         FROM projects
-        WHERE user_id = ?
+        WHERE user_id = %s
         ORDER BY id DESC
         """,
         (session["user_id"],)
@@ -775,7 +707,7 @@ def projects():
         WHERE project_id IN (
             SELECT id
             FROM projects
-            WHERE user_id = ?
+            WHERE user_id = %s
         )
         ORDER BY id DESC
         """,
@@ -789,6 +721,8 @@ def projects():
         projects=projects,
         project_images=project_images
     )
+
+
 # =========================================================
 # DELETE PROJECT
 # =========================================================
@@ -796,20 +730,15 @@ def projects():
 @app.route("/delete-project/<int:project_id>")
 def delete_project(project_id):
 
-    # Login check
-
     if "user_id" not in session:
-
         return redirect(url_for("login"))
 
-
     conn = get_db()
-
 
     conn.execute(
         """
         DELETE FROM projects
-        WHERE id = ? AND user_id = ?
+        WHERE id = %s AND user_id = %s
         """,
         (
             project_id,
@@ -817,11 +746,8 @@ def delete_project(project_id):
         )
     )
 
-
     conn.commit()
-
     conn.close()
-
 
     return redirect(url_for("projects"))
 
@@ -842,7 +768,7 @@ def edit_project(project_id):
         """
         SELECT *
         FROM projects
-        WHERE id = ? AND user_id = ?
+        WHERE id = %s AND user_id = %s
         """,
         (project_id, session["user_id"])
     ).fetchone()
@@ -874,13 +800,13 @@ def edit_project(project_id):
             """
             UPDATE projects
             SET
-                project_name = ?,
-                description = ?,
-                technologies = ?,
-                github_link = ?,
-                live_link = ?,
-                project_image = ?
-            WHERE id = ? AND user_id = ?
+                project_name = %s,
+                description = %s,
+                technologies = %s,
+                github_link = %s,
+                live_link = %s,
+                project_image = %s
+            WHERE id = %s AND user_id = %s
             """,
             (
                 project_name,
@@ -905,6 +831,8 @@ def edit_project(project_id):
         "edit_project.html",
         project=project
     )
+
+
 # =========================================================
 # PROJECT DETAILS
 # =========================================================
@@ -921,7 +849,7 @@ def project_details(project_id):
         """
         SELECT *
         FROM projects
-        WHERE id = ? AND user_id = ?
+        WHERE id = %s AND user_id = %s
         """,
         (project_id, session["user_id"])
     ).fetchone()
@@ -935,8 +863,6 @@ def project_details(project_id):
         "project_details.html",
         project=project
     )
-    
-
 @app.route("/portfolio")
 def public_portfolio():
 
@@ -949,7 +875,7 @@ def public_portfolio():
         """
         SELECT *
         FROM profiles
-        WHERE user_id = ?
+        WHERE user_id = %s
         """,
         (session["user_id"],)
     ).fetchone()
@@ -958,7 +884,7 @@ def public_portfolio():
         """
         SELECT *
         FROM education
-        WHERE user_id = ?
+        WHERE user_id = %s
         ORDER BY id DESC
         """,
         (session["user_id"],)
@@ -968,7 +894,7 @@ def public_portfolio():
         """
         SELECT *
         FROM skills
-        WHERE user_id = ?
+        WHERE user_id = %s
         ORDER BY id DESC
         """,
         (session["user_id"],)
@@ -978,7 +904,7 @@ def public_portfolio():
         """
         SELECT *
         FROM projects
-        WHERE user_id = ?
+        WHERE user_id = %s
         ORDER BY id DESC
         """,
         (session["user_id"],)
@@ -988,39 +914,50 @@ def public_portfolio():
         """
         SELECT *
         FROM certificates
-        WHERE user_id = ?
+        WHERE user_id = %s
         ORDER BY id DESC
         """,
         (session["user_id"],)
     ).fetchall()
+
     theme = conn.execute(
         """
         SELECT *
         FROM themes
-        WHERE user_id = ?
+        WHERE user_id = %s
         """,
         (session["user_id"],)
     ).fetchone()
+
     resume = conn.execute(
         """
         SELECT *
         FROM resumes
-        WHERE user_id = ?
+        WHERE user_id = %s
         ORDER BY id DESC
         LIMIT 1
         """,
         (session["user_id"],)
     ).fetchone()
 
-
     social = conn.execute(
         """
         SELECT *
         FROM social_links
-        WHERE user_id = ?
+        WHERE user_id = %s
         """,
         (session["user_id"],)
     ).fetchone()
+
+    experiences = conn.execute(
+        """
+        SELECT *
+        FROM experience
+        WHERE user_id = %s
+        ORDER BY id DESC
+        """,
+        (session["user_id"],)
+    ).fetchall()
 
     conn.close()
 
@@ -1036,6 +973,8 @@ def public_portfolio():
         theme=theme,
         experiences=experiences
     )
+
+
 # =========================================================
 # PUBLIC PORTFOLIO BY USERNAME
 # =========================================================
@@ -1053,7 +992,7 @@ def public_portfolio_by_username(username):
         """
         SELECT *
         FROM users
-        WHERE LOWER(username) = LOWER(?)
+        WHERE LOWER(username) = LOWER(%s)
         """,
         (username,)
     ).fetchone()
@@ -1066,7 +1005,6 @@ def public_portfolio_by_username(username):
         conn.close()
 
         return "Portfolio not found!"
-
 
     # =====================================================
     # CHECK PUBLISH STATUS
@@ -1119,148 +1057,7 @@ def public_portfolio_by_username(username):
     user_id = user["id"]
 
 
-    # =====================================================
-    # PROFILE
-    # =====================================================
-
-    profile = conn.execute(
-        """
-        SELECT *
-        FROM profiles
-        WHERE user_id = ?
-        """,
-        (user_id,)
-    ).fetchone()
-
-
-    # =====================================================
-    # EDUCATION
-    # =====================================================
-
-    education = conn.execute(
-        """
-        SELECT *
-        FROM education
-        WHERE user_id = ?
-        ORDER BY id DESC
-        """,
-        (user_id,)
-    ).fetchall()
-
-
-    # =====================================================
-    # SKILLS
-    # =====================================================
-
-    skills = conn.execute(
-        """
-        SELECT *
-        FROM skills
-        WHERE user_id = ?
-        ORDER BY id DESC
-        """,
-        (user_id,)
-    ).fetchall()
-
-
-    # =====================================================
-    # PROJECTS
-    # =====================================================
-
-    projects = conn.execute(
-        """
-        SELECT *
-        FROM projects
-        WHERE user_id = ?
-        ORDER BY id DESC
-        """,
-        (user_id,)
-    ).fetchall()
-
-
-    # =====================================================
-    # CERTIFICATES
-    # =====================================================
-
-    certificates = conn.execute(
-        """
-        SELECT *
-        FROM certificates
-        WHERE user_id = ?
-        ORDER BY id DESC
-        """,
-        (user_id,)
-    ).fetchall()
-
-
-    # =====================================================
-    # RESUME
-    # =====================================================
-
-    resume = conn.execute(
-        """
-        SELECT *
-        FROM resumes
-        WHERE user_id = ?
-        ORDER BY id DESC
-        LIMIT 1
-        """,
-        (user_id,)
-    ).fetchone()
-
-
-    # =====================================================
-    # SOCIAL LINKS
-    # =====================================================
-
-    social = conn.execute(
-        """
-        SELECT *
-        FROM social_links
-        WHERE user_id = ?
-        """,
-        (user_id,)
-    ).fetchone()
-
-
-    # =====================================================
-    # THEME
-    # =====================================================
-
-    theme = conn.execute(
-        """
-        SELECT *
-        FROM themes
-        WHERE user_id = ?
-        """,
-        (user_id,)
-    ).fetchone()
-
-
-    # =====================================================
-    # EXPERIENCE
-    # =====================================================
-
-    experiences = conn.execute(
-        """
-        SELECT *
-        FROM experience
-        WHERE user_id = ?
-        ORDER BY id DESC
-        """,
-        (user_id,)
-    ).fetchall()
-
-
-    print(
-        "EXPERIENCES:",
-        [dict(exp) for exp in experiences]
-    )
-
-
-    # Close database
-    conn.close()
-
+    
 
     # =====================================================
     # SHOW PUBLIC PORTFOLIO
@@ -1309,7 +1106,7 @@ def publish_portfolio():
                 """
                 UPDATE users
                 SET is_published = 1
-                WHERE id = ?
+                WHERE id = %s
                 """,
                 (session["user_id"],)
             )
@@ -1320,7 +1117,7 @@ def publish_portfolio():
                 """
                 UPDATE users
                 SET is_published = 0
-                WHERE id = ?
+                WHERE id = %s
                 """,
                 (session["user_id"],)
             )
@@ -1331,7 +1128,7 @@ def publish_portfolio():
         """
         SELECT username, is_published
         FROM users
-        WHERE id = ?
+        WHERE id = %s
         """,
         (session["user_id"],)
     ).fetchone()
@@ -1353,6 +1150,8 @@ def publish_portfolio():
         portfolio_url=portfolio_url,
         is_published=user["is_published"]
     )
+
+
 # =========================================================
 # GENERATE PORTFOLIO QR CODE
 # =========================================================
@@ -1366,7 +1165,7 @@ def generate_portfolio_qr(username):
         """
         SELECT username, is_published
         FROM users
-        WHERE LOWER(username) = LOWER(?)
+        WHERE LOWER(username) = LOWER(%s)
         """,
         (username,)
     ).fetchone()
@@ -1417,7 +1216,7 @@ def chat_history():
         """
         SELECT id, title, created_at, updated_at
         FROM chat_sessions
-        WHERE user_id = ?
+        WHERE user_id = %s
         ORDER BY updated_at DESC
         """,
         (session["user_id"],)
@@ -1442,8 +1241,8 @@ def get_chat_history(chat_id):
         """
         SELECT id, title
         FROM chat_sessions
-        WHERE id = ?
-        AND user_id = ?
+        WHERE id = %s
+        AND user_id = %s
         """,
         (chat_id, session["user_id"])
     ).fetchone()
@@ -1456,7 +1255,7 @@ def get_chat_history(chat_id):
         """
         SELECT role, message, created_at
         FROM chat_messages
-        WHERE session_id = ?
+        WHERE session_id = %s
         ORDER BY id ASC
         """,
         (chat_id,)
@@ -1507,65 +1306,42 @@ def ai_chat():
 
         conn = get_db()
 
-        # =================================================
-        # CREATE CHAT TABLES
-        # =================================================
-
-        conn.execute("""
-            CREATE TABLE IF NOT EXISTS chat_sessions (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                user_id INTEGER NOT NULL,
-                title TEXT DEFAULT 'New Chat',
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-            )
-        """)
-
-        conn.execute("""
-            CREATE TABLE IF NOT EXISTS chat_messages (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                session_id INTEGER NOT NULL,
-                role TEXT NOT NULL,
-                message TEXT NOT NULL,
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-            )
-        """)
-
-        conn.commit()
 
         # =================================================
         # CREATE / CHECK CHAT
         # =================================================
 
-        if chat_id:
+       if chat_id:
 
-            chat = conn.execute(
-                """
-                SELECT id
-                FROM chat_sessions
-                WHERE id = ?
-                AND user_id = ?
-                """,
-                (chat_id, session["user_id"])
-            ).fetchone()
+    chat = conn.execute(
+        """
+        SELECT id
+        FROM chat_sessions
+        WHERE id = %s
+        AND user_id = %s
+        """,
+        (chat_id, session["user_id"])
+    ).fetchone()
 
-            if not chat:
-                chat_id = None
+    if not chat:
+        chat_id = None
 
-        if not chat_id:
 
-            cursor = conn.execute(
-                """
-                INSERT INTO chat_sessions
-                (user_id, title)
-                VALUES (?, ?)
-                """,
-                (session["user_id"], "New Chat")
-            )
+if not chat_id:
 
-            chat_id = cursor.lastrowid
+    cursor = conn.execute(
+        """
+        INSERT INTO chat_sessions
+        (user_id, title)
+        VALUES (%s, %s)
+        RETURNING id
+        """,
+        (session["user_id"], "New Chat")
+    )
 
-            conn.commit()
+    chat_id = cursor.fetchone()[id]
+
+    conn.commit()
 
         # =================================================
         # SAVE USER MESSAGE
@@ -1575,7 +1351,7 @@ def ai_chat():
             """
             INSERT INTO chat_messages
             (session_id, role, message)
-            VALUES (?, ?, ?)
+           VALUES (%s, %s, %s)
             """,
             (chat_id, "user", user_message)
         )
@@ -1590,7 +1366,7 @@ def ai_chat():
             """
             SELECT role, message
             FROM chat_messages
-            WHERE session_id = ?
+            WHERE session_id = %s
             ORDER BY id ASC
             LIMIT 30
             """,
@@ -1617,7 +1393,7 @@ def ai_chat():
             """
             SELECT username, email
             FROM users
-            WHERE id = ?
+            WHERE id = %s
             """,
             (user_id,)
         ).fetchone()
@@ -1626,7 +1402,7 @@ def ai_chat():
             """
             SELECT *
             FROM profiles
-            WHERE user_id = ?
+            WHERE user_id = %s
             """,
             (user_id,)
         ).fetchone()
@@ -1635,7 +1411,7 @@ def ai_chat():
             """
             SELECT *
             FROM education
-            WHERE user_id = ?
+            WHERE user_id = %s
             """,
             (user_id,)
         ).fetchall()
@@ -1644,7 +1420,7 @@ def ai_chat():
             """
             SELECT *
             FROM skills
-            WHERE user_id = ?
+            WHERE user_id = %s
             """,
             (user_id,)
         ).fetchall()
@@ -1653,7 +1429,7 @@ def ai_chat():
             """
             SELECT *
             FROM projects
-            WHERE user_id = ?
+            WHERE user_id = %s
             """,
             (user_id,)
         ).fetchall()
@@ -1662,7 +1438,7 @@ def ai_chat():
             """
             SELECT *
             FROM certificates
-            WHERE user_id = ?
+            WHERE user_id = %s
             """,
             (user_id,)
         ).fetchall()
@@ -1671,7 +1447,7 @@ def ai_chat():
             """
             SELECT *
             FROM experience
-            WHERE user_id = ?
+            WHERE user_id = %s
             """,
             (user_id,)
         ).fetchall()
@@ -1755,7 +1531,7 @@ Give the best possible answer.
             """
             INSERT INTO chat_messages
             (session_id, role, message)
-            VALUES (?, ?, ?)
+            VALUES (%s, %s, %s)
             """,
             (chat_id, "assistant", reply)
         )
@@ -1768,7 +1544,7 @@ Give the best possible answer.
             """
             SELECT title
             FROM chat_sessions
-            WHERE id = ?
+            WHERE id = %s
             """,
             (chat_id,)
         ).fetchone()
@@ -1780,9 +1556,9 @@ Give the best possible answer.
             conn.execute(
                 """
                 UPDATE chat_sessions
-                SET title = ?,
+                SET title = %s,
                     updated_at = CURRENT_TIMESTAMP
-                WHERE id = ?
+                WHERE id = %s
                 """,
                 (title, chat_id)
             )
@@ -1793,7 +1569,7 @@ Give the best possible answer.
                 """
                 UPDATE chat_sessions
                 SET updated_at = CURRENT_TIMESTAMP
-                WHERE id = ?
+                WHERE id = %s
                 """,
                 (chat_id,)
             )
@@ -1879,7 +1655,7 @@ def skills():
                 user_id,
                 skill_name
             )
-            VALUES (?, ?)
+            VALUES (%s, %s)
             """,
             (
                 session["user_id"],
@@ -1902,7 +1678,7 @@ def skills():
         """
         SELECT *
         FROM skills
-        WHERE user_id = ?
+        WHERE user_id = %s
         ORDER BY id DESC
         """,
         (session["user_id"],)
@@ -1956,7 +1732,7 @@ def certificates():
                 certificate_link,
                 certificate_image
             )
-            VALUES (?, ?, ?, ?, ?, ?)
+            VALUES (%s, %s, %s, %s, %s, %s)
             """,
             (
                 session["user_id"],
@@ -1979,7 +1755,7 @@ def certificates():
         """
         SELECT *
         FROM certificates
-        WHERE user_id = ?
+        WHERE user_id = %s
         ORDER BY id DESC
         """,
         (session["user_id"],)
@@ -2002,7 +1778,7 @@ def delete_certificate(certificate_id):
     conn.execute(
         """
         DELETE FROM certificates
-        WHERE id = ? AND user_id = ?
+        WHERE id = %s AND user_id = %s
         """,
         (certificate_id, session["user_id"])
     )
@@ -2022,7 +1798,7 @@ def delete_skill(skill_id):
     conn.execute(
         """
         DELETE FROM skills
-        WHERE id = ? AND user_id = ?
+        WHERE id = %s AND user_id = %s
         """,
         (skill_id, session["user_id"])
     )
@@ -2045,7 +1821,7 @@ def edit_certificate(certificate_id):
         """
         SELECT *
         FROM certificates
-        WHERE id = ? AND user_id = ?
+        WHERE id = %s AND user_id = %s
         """,
         (
             certificate_id,
@@ -2068,11 +1844,11 @@ def edit_certificate(certificate_id):
             """
             UPDATE certificates
             SET
-                certificate_name = ?,
-                issuing_organization = ?,
-                issue_date = ?,
-                certificate_link = ?
-            WHERE id = ? AND user_id = ?
+                certificate_name = %s,
+                issuing_organization = %s,
+                issue_date = %s,
+                certificate_link = %s
+            WHERE id = %s AND user_id = %s
             """,
             (
                 certificate_name,
@@ -2127,7 +1903,7 @@ def resume():
             conn.execute(
                 """
                 DELETE FROM resumes
-                WHERE user_id = ?
+                WHERE user_id = %s
                 """,
                 (session["user_id"],)
             )
@@ -2137,7 +1913,7 @@ def resume():
                 """
                 INSERT INTO resumes
                 (user_id, resume_file)
-                VALUES (?, ?)
+                VALUES (%s, %s)
                 """,
                 (
                     session["user_id"],
@@ -2155,7 +1931,7 @@ def resume():
         """
         SELECT *
         FROM resumes
-        WHERE user_id = ?
+        WHERE user_id = %s
         ORDER BY id DESC
         LIMIT 1
         """,
@@ -2192,7 +1968,7 @@ def social_links():
             """
             SELECT *
             FROM social_links
-            WHERE user_id = ?
+            WHERE user_id = %s
             """,
             (session["user_id"],)
         ).fetchone()
@@ -2202,11 +1978,11 @@ def social_links():
             conn.execute(
                 """
                 UPDATE social_links
-                SET linkedin = ?,
-                    github = ?,
-                    email = ?,
-                    portfolio = ?
-                WHERE user_id = ?
+                SET linkedin = %s,
+                    github = %s,
+                    email = %s,
+                    portfolio = %s
+                WHERE user_id = %s
                 """,
                 (
                     linkedin,
@@ -2229,7 +2005,7 @@ def social_links():
                     email,
                     portfolio
                 )
-                VALUES (?, ?, ?, ?, ?)
+                VALUES (%s, %s, %s, %s, %s)
                 """,
                 (
                     session["user_id"],
@@ -2250,7 +2026,7 @@ def social_links():
         """
         SELECT *
         FROM social_links
-        WHERE user_id = ?
+        WHERE user_id = %s
         """,
         (session["user_id"],)
     ).fetchone()
@@ -2279,7 +2055,7 @@ def theme_settings():
             """
             SELECT *
             FROM themes
-            WHERE user_id = ?
+            WHERE user_id = %s
             """,
             (session["user_id"],)
         ).fetchone()
@@ -2289,11 +2065,11 @@ def theme_settings():
             conn.execute(
                 """
                 UPDATE themes
-SET theme_color = ?,
-    background_color = ?,
-    font_style = ?,
-    background_style = ?
-WHERE user_id = ?
+SET theme_color = %s,
+    background_color = %s,
+    font_style = %s,
+    background_style = %s
+WHERE user_id = %s
                 """,
                 (
     theme_color,
@@ -2316,7 +2092,7 @@ WHERE user_id = ?
     font_style,
     background_style
 )
-VALUES (?, ?, ?, ?, ?)
+VALUES (%s, %s, %s, %s, %s)
                 """,
                 (
     session["user_id"],
@@ -2336,7 +2112,7 @@ VALUES (?, ?, ?, ?, ?)
         """
         SELECT *
         FROM themes
-        WHERE user_id = ?
+        WHERE user_id = %s
         """,
         (session["user_id"],)
     ).fetchone()
@@ -2362,7 +2138,7 @@ def delete_resume():
     conn.execute(
         """
         DELETE FROM resumes
-        WHERE user_id = ?
+        WHERE user_id = %s
         """,
         (session["user_id"],)
     )
@@ -2384,7 +2160,7 @@ def edit_skill(skill_id):
         """
         SELECT *
         FROM skills
-        WHERE id = ? AND user_id = ?
+        WHERE id = %s AND user_id = %s
         """,
         (skill_id, session["user_id"])
     ).fetchone()
@@ -2400,8 +2176,8 @@ def edit_skill(skill_id):
         conn.execute(
             """
             UPDATE skills
-            SET skill_name = ?
-            WHERE id = ? AND user_id = ?
+            SET skill_name = %s
+            WHERE id = %s AND user_id = %s
             """,
             (
                 skill_name,
