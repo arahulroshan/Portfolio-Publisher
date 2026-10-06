@@ -7,9 +7,11 @@ import qrcode
 from io import BytesIO
 from flask import send_file
 app = Flask(__name__)
-import os
 from google import genai
-gemini_client = genai.Client()
+gemini_client = genai.Client(
+    api_key=os.environ.get("GEMINI_API_KEY")
+)
+
 
 
 # Secret key for session
@@ -22,25 +24,22 @@ app.secret_key = "portfolio-publisher-secret-key"
 
 def get_db():
     conn = psycopg2.connect(
-        os.environ.get("DATABASE_URL")
+        os.environ.get("DATABASE_URL"),
+        connect_timeout=10
     )
     return conn
 
 
-
-           # =========================================================
-# CREATE DATABASE
-# =========================================================
-
 def init_db():
 
     conn = get_db()
+    cursor = conn.cursor()
 
     # =====================================================
     # USERS
     # =====================================================
 
-    conn.execute("""
+    cursor.execute("""
         CREATE TABLE IF NOT EXISTS users (
             id SERIAL PRIMARY KEY,
             username TEXT UNIQUE NOT NULL,
@@ -55,7 +54,7 @@ def init_db():
     # PROFILES
     # =====================================================
 
-    conn.execute("""
+    cursor.execute("""
         CREATE TABLE IF NOT EXISTS profiles (
             id SERIAL PRIMARY KEY,
             user_id INTEGER UNIQUE NOT NULL,
@@ -73,7 +72,7 @@ def init_db():
     # EXPERIENCE
     # =====================================================
 
-    conn.execute("""
+    cursor.execute("""
         CREATE TABLE IF NOT EXISTS experience (
             id SERIAL PRIMARY KEY,
             user_id INTEGER NOT NULL,
@@ -91,7 +90,7 @@ def init_db():
     # SOCIAL LINKS
     # =====================================================
 
-    conn.execute("""
+    cursor.execute("""
         CREATE TABLE IF NOT EXISTS social_links (
             id SERIAL PRIMARY KEY,
             user_id INTEGER UNIQUE NOT NULL,
@@ -108,7 +107,7 @@ def init_db():
     # EDUCATION
     # =====================================================
 
-    conn.execute("""
+    cursor.execute("""
         CREATE TABLE IF NOT EXISTS education (
             id SERIAL PRIMARY KEY,
             user_id INTEGER NOT NULL,
@@ -125,7 +124,7 @@ def init_db():
     # SKILLS
     # =====================================================
 
-    conn.execute("""
+    cursor.execute("""
         CREATE TABLE IF NOT EXISTS skills (
             id SERIAL PRIMARY KEY,
             user_id INTEGER NOT NULL,
@@ -139,7 +138,7 @@ def init_db():
     # CERTIFICATES
     # =====================================================
 
-    conn.execute("""
+    cursor.execute("""
         CREATE TABLE IF NOT EXISTS certificates (
             id SERIAL PRIMARY KEY,
             user_id INTEGER NOT NULL,
@@ -157,7 +156,7 @@ def init_db():
     # RESUMES
     # =====================================================
 
-    conn.execute("""
+    cursor.execute("""
         CREATE TABLE IF NOT EXISTS resumes (
             id SERIAL PRIMARY KEY,
             user_id INTEGER NOT NULL,
@@ -171,7 +170,7 @@ def init_db():
     # PROJECTS
     # =====================================================
 
-    conn.execute("""
+    cursor.execute("""
         CREATE TABLE IF NOT EXISTS projects (
             id SERIAL PRIMARY KEY,
             user_id INTEGER NOT NULL,
@@ -190,7 +189,7 @@ def init_db():
     # PROJECT IMAGES
     # =====================================================
 
-    conn.execute("""
+    cursor.execute("""
         CREATE TABLE IF NOT EXISTS project_images (
             id SERIAL PRIMARY KEY,
             project_id INTEGER NOT NULL,
@@ -204,7 +203,7 @@ def init_db():
     # THEMES
     # =====================================================
 
-    conn.execute("""
+    cursor.execute("""
         CREATE TABLE IF NOT EXISTS themes (
             id SERIAL PRIMARY KEY,
             user_id INTEGER UNIQUE NOT NULL,
@@ -221,7 +220,7 @@ def init_db():
     # CHAT SESSIONS
     # =====================================================
 
-    conn.execute("""
+    cursor.execute("""
         CREATE TABLE IF NOT EXISTS chat_sessions (
             id SERIAL PRIMARY KEY,
             user_id INTEGER NOT NULL,
@@ -237,7 +236,7 @@ def init_db():
     # CHAT MESSAGES
     # =====================================================
 
-    conn.execute("""
+    cursor.execute("""
         CREATE TABLE IF NOT EXISTS chat_messages (
             id SERIAL PRIMARY KEY,
             session_id INTEGER NOT NULL,
@@ -274,123 +273,151 @@ def register():
 
     if request.method == "POST":
 
-        username = request.form["username"]
-
-        email = request.form["email"]
-
+        username = request.form["username"].strip()
+        email = request.form["email"].strip()
         password = request.form["password"]
-
         confirm_password = request.form["confirm_password"]
 
-
-        # Check password
-
         if password != confirm_password:
-
             return "Passwords do not match!"
 
-
-        # Hash password
+        if not username or not email or not password:
+            return "All fields are required!"
 
         hashed_password = generate_password_hash(password)
 
+        conn = None
 
         try:
 
-    conn = get_db()
+            conn = get_db()
+            cursor = conn.cursor()
 
-    conn.execute(
-        """
-        INSERT INTO users
-        (
-            username,
-            email,
-            password
-        )
-        VALUES (%s, %s, %s)
-        """,
-        (
-            username,
-            email,
-            hashed_password
-        )
-    )
+            # Check existing username
+            cursor.execute(
+                """
+                SELECT id
+                FROM users
+                WHERE LOWER(TRIM(username)) = LOWER(TRIM(%s))
+                LIMIT 1
+                """,
+                (username,)
+            )
 
-    conn.commit()
+            existing_user = cursor.fetchone()
 
-    conn.close()
+            if existing_user:
+                conn.close()
+                return "Username already exists!"
 
-    return redirect(url_for("login"))
+            # Insert user
+            cursor.execute(
+                """
+                INSERT INTO users
+                (
+                    username,
+                    email,
+                    password
+                )
+                VALUES (%s, %s, %s)
+                RETURNING id
+                """,
+                (
+                    username,
+                    email,
+                    hashed_password
+                )
+            )
 
-except Exception:
+            new_user = cursor.fetchone()
 
-    return "Username already exists!"
+            conn.commit()
+
+            print("REGISTER SUCCESS")
+            print("NEW USER ID:", new_user[0])
+            print("NEW USERNAME:", username)
+
+            conn.close()
+
+            return redirect(url_for("login"))
+
+        except Exception as e:
+
+            print("REGISTER ERROR:", repr(e))
+
+            if conn:
+                conn.rollback()
+                conn.close()
+
+            return "Registration failed. Check terminal for the database error."
 
     return render_template("register.html")
-
-
-# =========================================================
-# LOGIN
-# =========================================================
-# =========================================================
-# LOGIN
-# =========================================================
-
 @app.route("/login", methods=["GET", "POST"])
 def login():
 
     print("LOGIN ROUTE HIT")
 
     if request.method == "POST":
+
         print("LOGIN POST HIT")
 
         username = request.form["username"].strip()
         password = request.form["password"]
-    
-        conn = get_db()
 
-        user = conn.execute(
-            """
-            SELECT *
-            FROM users
-            WHERE LOWER(TRIM(username)) = LOWER(TRIM(%s))
-            """,
-            (username,)
-        ).fetchone()
-
-        conn.close()
-
-        # DEBUG
         print("LOGIN USERNAME:", repr(username))
-        print("DB USER:", user["username"] if user else None)
 
-        if user:
-            print(
-                "PASSWORD CHECK:",
-                check_password_hash(
-                    user["password"],
-                    password
-                )
+        conn = None
+
+        try:
+            conn = get_db()
+            cursor = conn.cursor(cursor_factory=RealDictCursor)
+
+            cursor.execute(
+                """
+                SELECT id, username, password
+                FROM users
+                WHERE LOWER(TRIM(username)) = LOWER(TRIM(%s))
+                LIMIT 1
+                """,
+                (username,)
             )
 
-        # CHECK LOGIN
-        if user and check_password_hash(
-            user["password"],
-            password
-        ):
+            user = cursor.fetchone()
+
+            print("LOGIN DB RESULT:", user)
+
+            if user is None:
+                print("USER NOT FOUND")
+                return "Invalid username or password"
+
+            if not check_password_hash(user["password"], password):
+                print("PASSWORD INVALID")
+                return "Invalid username or password"
+
+            # Login successful
+            session.clear()
+
             session["user_id"] = user["id"]
             session["username"] = user["username"]
 
             print("LOGIN SUCCESS")
+            print("SESSION USER ID:", session["user_id"])
+            print("SESSION USERNAME:", session["username"])
 
             return redirect(url_for("dashboard"))
 
-        print("LOGIN FAILED")
+        except Exception as e:
 
-        return "Invalid username or password!"
+            print("LOGIN ERROR:", e)
+
+            return "Login failed. Please try again."
+
+        finally:
+
+            if conn:
+                conn.close()
 
     return render_template("login.html")
-
 # =========================================================
 # PROFILE
 # =========================================================
@@ -398,19 +425,48 @@ def login():
 @app.route("/profile", methods=["GET", "POST"])
 def profile():
 
-    # Login check
+    # =====================================================
+    # LOGIN CHECK
+    # =====================================================
+
     if "user_id" not in session:
         return redirect(url_for("login"))
 
+
+    # =====================================================
+    # SAVE / UPDATE PROFILE
+    # =====================================================
+
     if request.method == "POST":
 
-        full_name = request.form["full_name"]
-        phone = request.form["phone"]
-        location = request.form["location"]
-        about = request.form["about"]
+        full_name = request.form.get(
+            "full_name",
+            ""
+        ).strip()
 
-        # Profile image
-        profile_image = request.files.get("profile_image")
+        phone = request.form.get(
+            "phone",
+            ""
+        ).strip()
+
+        location = request.form.get(
+            "location",
+            ""
+        ).strip()
+
+        about = request.form.get(
+            "about",
+            ""
+        ).strip()
+
+
+        # =================================================
+        # PROFILE IMAGE
+        # =================================================
+
+        profile_image = request.files.get(
+            "profile_image"
+        )
 
         image_filename = None
 
@@ -436,75 +492,118 @@ def profile():
                 )
             )
 
+
+        # =================================================
+        # DATABASE CONNECTION
+        # =================================================
+
         conn = get_db()
 
-       # Keep old image if no new image is uploaded
-if image_filename:
+        cursor = conn.cursor()
 
-    conn.execute(
-        """
-        INSERT INTO profiles
-        (
-            user_id,
-            full_name,
-            phone,
-            location,
-            about,
-            profile_image
+
+        # =================================================
+        # UPDATE WITH NEW IMAGE
+        # =================================================
+
+        if image_filename:
+
+            cursor.execute(
+                """
+                INSERT INTO profiles
+                (
+                    user_id,
+                    full_name,
+                    phone,
+                    location,
+                    about,
+                    profile_image
+                )
+                VALUES (%s, %s, %s, %s, %s, %s)
+
+                ON CONFLICT (user_id)
+                DO UPDATE SET
+                    full_name = EXCLUDED.full_name,
+                    phone = EXCLUDED.phone,
+                    location = EXCLUDED.location,
+                    about = EXCLUDED.about,
+                    profile_image = EXCLUDED.profile_image
+                """,
+                (
+                    session["user_id"],
+                    full_name,
+                    phone,
+                    location,
+                    about,
+                    image_filename
+                )
+            )
+
+
+        # =================================================
+        # UPDATE WITHOUT CHANGING OLD IMAGE
+        # =================================================
+
+        else:
+
+            cursor.execute(
+                """
+                INSERT INTO profiles
+                (
+                    user_id,
+                    full_name,
+                    phone,
+                    location,
+                    about
+                )
+                VALUES (%s, %s, %s, %s, %s)
+
+                ON CONFLICT (user_id)
+                DO UPDATE SET
+                    full_name = EXCLUDED.full_name,
+                    phone = EXCLUDED.phone,
+                    location = EXCLUDED.location,
+                    about = EXCLUDED.about
+                """,
+                (
+                    session["user_id"],
+                    full_name,
+                    phone,
+                    location,
+                    about
+                )
+            )
+
+
+        # =================================================
+        # SAVE CHANGES
+        # =================================================
+
+        conn.commit()
+
+        conn.close()
+
+
+        # =================================================
+        # GO TO DASHBOARD
+        # =================================================
+
+        return redirect(
+            url_for("dashboard")
         )
-        VALUES (%s, %s, %s, %s, %s, %s)
-        ON CONFLICT (user_id)
-        DO UPDATE SET
-            full_name = EXCLUDED.full_name,
-            phone = EXCLUDED.phone,
-            location = EXCLUDED.location,
-            about = EXCLUDED.about,
-            profile_image = EXCLUDED.profile_image
-        """,
-        (
-            session["user_id"],
-            full_name,
-            phone,
-            location,
-            about,
-            image_filename
-        )
+
+
+    # =====================================================
+    # PROFILE PAGE
+    # =====================================================
+
+    return render_template(
+        "profile.html"
     )
+# =========================================================
+# EXPERIENCE
+# =========================================================
 
-else:
-
-    conn.execute(
-        """
-        INSERT INTO profiles
-        (
-            user_id,
-            full_name,
-            phone,
-            location,
-            about
-        )
-        VALUES (%s, %s, %s, %s, %s)
-        ON CONFLICT (user_id)
-        DO UPDATE SET
-            full_name = EXCLUDED.full_name,
-            phone = EXCLUDED.phone,
-            location = EXCLUDED.location,
-            about = EXCLUDED.about
-        """,
-        (
-            session["user_id"],
-            full_name,
-            phone,
-            location,
-            about
-        )
-    )
-
-conn.commit()
-conn.close()
-
-return redirect(url_for("dashboard"))
-    return render_template("profile.html")
 @app.route("/experience", methods=["GET", "POST"])
 def experience():
 
@@ -513,15 +612,23 @@ def experience():
 
     conn = get_db()
 
+    cursor = conn.cursor(
+        cursor_factory=RealDictCursor
+    )
+
+    # =====================================================
+    # ADD EXPERIENCE
+    # =====================================================
+
     if request.method == "POST":
 
-        company = request.form["company"]
-        role = request.form["role"]
+        company = request.form["company"].strip()
+        role = request.form["role"].strip()
         start_date = request.form["start_date"]
         end_date = request.form["end_date"]
-        description = request.form["description"]
+        description = request.form["description"].strip()
 
-        conn.execute(
+        cursor.execute(
             """
             INSERT INTO experience
             (
@@ -546,7 +653,12 @@ def experience():
 
         conn.commit()
 
-    experiences = conn.execute(
+
+    # =====================================================
+    # GET EXPERIENCE
+    # =====================================================
+
+    cursor.execute(
         """
         SELECT *
         FROM experience
@@ -554,7 +666,9 @@ def experience():
         ORDER BY id DESC
         """,
         (session["user_id"],)
-    ).fetchall()
+    )
+
+    experiences = cursor.fetchall()
 
     conn.close()
 
@@ -562,26 +676,251 @@ def experience():
         "experience.html",
         experiences=experiences
     )
-    conn.execute(
-    """
-    INSERT INTO education
-    (
-        user_id,
-        degree,
-        institution,
-        year,
-        grade
-    )
-    VALUES (%s, %s, %s, %s, %s)
-    """,
-    (
-        session["user_id"],
-        degree,
-        institution,
-        year,
-        grade
-    )
+
+
+# =========================================================
+# EDIT EXPERIENCE
+# =========================================================
+
+@app.route(
+    "/edit-experience/<int:experience_id>",
+    methods=["GET", "POST"]
 )
+def edit_experience(experience_id):
+
+    if "user_id" not in session:
+        return redirect(url_for("login"))
+
+    conn = get_db()
+
+    cursor = conn.cursor(
+        cursor_factory=RealDictCursor
+    )
+
+
+    # =====================================================
+    # GET EXPERIENCE
+    # =====================================================
+
+    cursor.execute(
+        """
+        SELECT *
+        FROM experience
+        WHERE id = %s
+          AND user_id = %s
+        """,
+        (
+            experience_id,
+            session["user_id"]
+        )
+    )
+
+    experience = cursor.fetchone()
+
+
+    # =====================================================
+    # NOT FOUND
+    # =====================================================
+
+    if not experience:
+
+        conn.close()
+
+        return "Experience not found!", 404
+
+
+    # =====================================================
+    # UPDATE EXPERIENCE
+    # =====================================================
+
+    if request.method == "POST":
+
+        company = request.form["company"].strip()
+        role = request.form["role"].strip()
+        start_date = request.form["start_date"]
+        end_date = request.form["end_date"]
+        description = request.form["description"].strip()
+
+        cursor.execute(
+            """
+            UPDATE experience
+            SET
+                company = %s,
+                role = %s,
+                start_date = %s,
+                end_date = %s,
+                description = %s
+            WHERE id = %s
+              AND user_id = %s
+            """,
+            (
+                company,
+                role,
+                start_date,
+                end_date,
+                description,
+                experience_id,
+                session["user_id"]
+            )
+        )
+
+        conn.commit()
+
+        conn.close()
+
+        return redirect(
+            url_for("experience")
+        )
+
+
+    # =====================================================
+    # EDIT PAGE
+    # =====================================================
+
+    conn.close()
+
+    return render_template(
+        "edit_experience.html",
+        experience=experience
+    )
+
+
+# =========================================================
+# DELETE EXPERIENCE
+# =========================================================
+
+@app.route(
+    "/delete-experience/<int:experience_id>",
+    methods=["POST"]
+)
+def delete_experience(experience_id):
+
+    if "user_id" not in session:
+        return redirect(url_for("login"))
+
+    conn = get_db()
+
+    cursor = conn.cursor()
+
+    cursor.execute(
+        """
+        DELETE FROM experience
+        WHERE id = %s
+          AND user_id = %s
+        """,
+        (
+            experience_id,
+            session["user_id"]
+        )
+    )
+
+    conn.commit()
+
+    conn.close()
+
+    return redirect(
+        url_for("experience")
+    )
+## =========================================================
+# EDUCATION
+# =========================================================
+
+@app.route("/education", methods=["GET", "POST"])
+def education():
+
+    if "user_id" not in session:
+        return redirect(url_for("login"))
+
+    conn = get_db()
+    cursor = conn.cursor()
+
+
+    # =====================================================
+    # ADD EDUCATION
+    # =====================================================
+
+    if request.method == "POST":
+
+        degree = request.form.get(
+            "degree",
+            ""
+        ).strip()
+
+        institution = request.form.get(
+            "institution",
+            ""
+        ).strip()
+
+        year = request.form.get(
+            "year",
+            ""
+        ).strip()
+
+        grade = request.form.get(
+            "grade",
+            ""
+        ).strip()
+
+
+        cursor.execute(
+            """
+            INSERT INTO education
+            (
+                user_id,
+                degree,
+                institution,
+                year,
+                grade
+            )
+            VALUES (%s, %s, %s, %s, %s)
+            """,
+            (
+                session["user_id"],
+                degree,
+                institution,
+                year,
+                grade
+            )
+        )
+
+        conn.commit()
+
+        conn.close()
+
+        return redirect(
+            url_for("education")
+        )
+
+
+    # =====================================================
+    # GET EDUCATION
+    # =====================================================
+
+    cursor.execute(
+        """
+        SELECT *
+        FROM education
+        WHERE user_id = %s
+        ORDER BY id DESC
+        """,
+        (
+            session["user_id"],
+        )
+    )
+
+    educations = cursor.fetchall()
+
+    conn.close()
+
+
+    # =====================================================
+    # DISPLAY EDUCATION
+    # =====================================================
+
+    return render_template(
+        "education.html",
+        educations=educations
+    )
 # =========================================================
 # PROJECTS
 # =========================================================
@@ -597,15 +936,32 @@ def projects():
 
     if request.method == "POST":
 
-        project_name = request.form["project_name"]
-        description = request.form["description"]
-        technologies = request.form["technologies"]
-        github_link = request.form["github_link"]
-        live_link = request.form["live_link"]
+        project_name = request.form.get(
+            "project_name", ""
+        ).strip()
+
+        description = request.form.get(
+            "description", ""
+        ).strip()
+
+        technologies = request.form.get(
+            "technologies", ""
+        ).strip()
+
+        github_link = request.form.get(
+            "github_link", ""
+        ).strip()
+
+        live_link = request.form.get(
+            "live_link", ""
+        ).strip()
+
 
         # ---------------- MAIN PROJECT IMAGE ----------------
 
-        project_image = request.files.get("project_image")
+        project_image = request.files.get(
+            "project_image"
+        )
 
         image_filename = None
 
@@ -613,15 +969,37 @@ def projects():
 
             image_filename = project_image.filename
 
-            project_image.save(
-                "static/images/projects/" + image_filename
+            upload_folder = os.path.join(
+                "static",
+                "images",
+                "projects"
             )
 
-       # ---------------- SAVE PROJECT ----------------
+            os.makedirs(
+                upload_folder,
+                exist_ok=True
+            )
+
+            project_image.save(
+                os.path.join(
+                    upload_folder,
+                    image_filename
+                )
+            )
+
+
+        # ---------------- DATABASE ----------------
 
         conn = get_db()
 
-        cursor = conn.execute(
+        cursor = conn.cursor(
+            cursor_factory=RealDictCursor
+        )
+
+
+        # ---------------- SAVE PROJECT ----------------
+
+        cursor.execute(
             """
             INSERT INTO projects
             (
@@ -647,24 +1025,42 @@ def projects():
             )
         )
 
-        # Get newly created project ID
-        project_id = cursor.fetchone()[0]
+        new_project = cursor.fetchone()
+
+        project_id = new_project["id"]
+
 
         # ---------------- MULTIPLE SCREENSHOTS ----------------
 
-        project_images = request.files.getlist("project_images")
+        project_images = request.files.getlist(
+            "project_images"
+        )
 
         for image in project_images:
 
             if image and image.filename != "":
 
-                image_filename = image.filename
+                gallery_filename = image.filename
 
-                image.save(
-                    "static/images/projects/" + image_filename
+                upload_folder = os.path.join(
+                    "static",
+                    "images",
+                    "projects"
                 )
 
-                conn.execute(
+                os.makedirs(
+                    upload_folder,
+                    exist_ok=True
+                )
+
+                image.save(
+                    os.path.join(
+                        upload_folder,
+                        gallery_filename
+                    )
+                )
+
+                cursor.execute(
                     """
                     INSERT INTO project_images
                     (
@@ -675,32 +1071,46 @@ def projects():
                     """,
                     (
                         project_id,
-                        image_filename
+                        gallery_filename
                     )
                 )
+
 
         conn.commit()
         conn.close()
 
-        return redirect(url_for("projects"))
+        return redirect(
+            url_for("projects")
+        )
+
 
     # ---------------- GET PROJECTS ----------------
 
     conn = get_db()
 
-    projects = conn.execute(
+    cursor = conn.cursor(
+        cursor_factory=RealDictCursor
+    )
+
+
+    cursor.execute(
         """
         SELECT *
         FROM projects
         WHERE user_id = %s
         ORDER BY id DESC
         """,
-        (session["user_id"],)
-    ).fetchall()
+        (
+            session["user_id"],
+        )
+    )
+
+    projects_list = cursor.fetchall()
+
 
     # ---------------- GET PROJECT SCREENSHOTS ----------------
 
-    project_images = conn.execute(
+    cursor.execute(
         """
         SELECT *
         FROM project_images
@@ -711,14 +1121,19 @@ def projects():
         )
         ORDER BY id DESC
         """,
-        (session["user_id"],)
-    ).fetchall()
+        (
+            session["user_id"],
+        )
+    )
+
+    project_images = cursor.fetchall()
 
     conn.close()
 
+
     return render_template(
         "projects.html",
-        projects=projects,
+        projects=projects_list,
         project_images=project_images
     )
 
@@ -727,7 +1142,10 @@ def projects():
 # DELETE PROJECT
 # =========================================================
 
-@app.route("/delete-project/<int:project_id>")
+@app.route(
+    "/delete-project/<int:project_id>",
+    methods=["POST", "GET"]
+)
 def delete_project(project_id):
 
     if "user_id" not in session:
@@ -735,10 +1153,35 @@ def delete_project(project_id):
 
     conn = get_db()
 
-    conn.execute(
+    cursor = conn.cursor()
+
+
+    # Delete screenshots belonging to this project
+    cursor.execute(
+        """
+        DELETE FROM project_images
+        WHERE project_id = %s
+        AND project_id IN (
+            SELECT id
+            FROM projects
+            WHERE id = %s
+            AND user_id = %s
+        )
+        """,
+        (
+            project_id,
+            project_id,
+            session["user_id"]
+        )
+    )
+
+
+    # Delete project
+    cursor.execute(
         """
         DELETE FROM projects
-        WHERE id = %s AND user_id = %s
+        WHERE id = %s
+        AND user_id = %s
         """,
         (
             project_id,
@@ -746,57 +1189,120 @@ def delete_project(project_id):
         )
     )
 
+
     conn.commit()
     conn.close()
 
-    return redirect(url_for("projects"))
+    return redirect(
+        url_for("projects")
+    )
 
 
 # =========================================================
 # EDIT PROJECT
 # =========================================================
 
-@app.route("/edit-project/<int:project_id>", methods=["GET", "POST"])
+@app.route(
+    "/edit-project/<int:project_id>",
+    methods=["GET", "POST"]
+)
 def edit_project(project_id):
 
     if "user_id" not in session:
         return redirect(url_for("login"))
 
+
     conn = get_db()
 
-    project = conn.execute(
+    cursor = conn.cursor(
+        cursor_factory=RealDictCursor
+    )
+
+
+    # ---------------- GET PROJECT ----------------
+
+    cursor.execute(
         """
         SELECT *
         FROM projects
-        WHERE id = %s AND user_id = %s
+        WHERE id = %s
+        AND user_id = %s
         """,
-        (project_id, session["user_id"])
-    ).fetchone()
+        (
+            project_id,
+            session["user_id"]
+        )
+    )
+
+    project = cursor.fetchone()
+
 
     if not project:
+
         conn.close()
-        return "Project not found!"
+
+        return "Project not found!", 404
+
+
+    # ---------------- UPDATE PROJECT ----------------
 
     if request.method == "POST":
 
-        project_name = request.form["project_name"]
-        description = request.form["description"]
-        technologies = request.form["technologies"]
-        github_link = request.form["github_link"]
-        live_link = request.form["live_link"]
+        project_name = request.form.get(
+            "project_name", ""
+        ).strip()
 
-        project_image = request.files.get("project_image")
+        description = request.form.get(
+            "description", ""
+        ).strip()
 
+        technologies = request.form.get(
+            "technologies", ""
+        ).strip()
+
+        github_link = request.form.get(
+            "github_link", ""
+        ).strip()
+
+        live_link = request.form.get(
+            "live_link", ""
+        ).strip()
+
+
+        project_image = request.files.get(
+            "project_image"
+        )
+
+
+        # Keep old image
         image_filename = project["project_image"]
 
+
+        # New image uploaded
         if project_image and project_image.filename != "":
+
             image_filename = project_image.filename
 
-            project_image.save(
-                "static/images/projects/" + image_filename
+            upload_folder = os.path.join(
+                "static",
+                "images",
+                "projects"
             )
 
-        conn.execute(
+            os.makedirs(
+                upload_folder,
+                exist_ok=True
+            )
+
+            project_image.save(
+                os.path.join(
+                    upload_folder,
+                    image_filename
+                )
+            )
+
+
+        cursor.execute(
             """
             UPDATE projects
             SET
@@ -806,7 +1312,8 @@ def edit_project(project_id):
                 github_link = %s,
                 live_link = %s,
                 project_image = %s
-            WHERE id = %s AND user_id = %s
+            WHERE id = %s
+            AND user_id = %s
             """,
             (
                 project_name,
@@ -820,12 +1327,17 @@ def edit_project(project_id):
             )
         )
 
+
         conn.commit()
         conn.close()
 
-        return redirect(url_for("projects"))
+        return redirect(
+            url_for("projects")
+        )
+
 
     conn.close()
+
 
     return render_template(
         "edit_project.html",
@@ -843,25 +1355,63 @@ def project_details(project_id):
     if "user_id" not in session:
         return redirect(url_for("login"))
 
+
     conn = get_db()
 
-    project = conn.execute(
+    cursor = conn.cursor(
+        cursor_factory=RealDictCursor
+    )
+
+
+    # ---------------- GET PROJECT ----------------
+
+    cursor.execute(
         """
         SELECT *
         FROM projects
-        WHERE id = %s AND user_id = %s
+        WHERE id = %s
+        AND user_id = %s
         """,
-        (project_id, session["user_id"])
-    ).fetchone()
+        (
+            project_id,
+            session["user_id"]
+        )
+    )
+
+    project = cursor.fetchone()
+
+
+    if not project:
+
+        conn.close()
+
+        return "Project not found!", 404
+
+
+    # ---------------- GET PROJECT SCREENSHOTS ----------------
+
+    cursor.execute(
+        """
+        SELECT *
+        FROM project_images
+        WHERE project_id = %s
+        ORDER BY id DESC
+        """,
+        (
+            project_id,
+        )
+    )
+
+    project_images = cursor.fetchall()
+
 
     conn.close()
 
-    if not project:
-        return "Project not found!"
 
     return render_template(
         "project_details.html",
-        project=project
+        project=project,
+        project_images=project_images
     )
 @app.route("/portfolio")
 def public_portfolio():
@@ -869,9 +1419,11 @@ def public_portfolio():
     if "user_id" not in session:
         return redirect(url_for("login"))
 
-    conn = get_db()
 
-    profile = conn.execute(
+    conn = get_db()
+    cursor = conn.cursor(cursor_factory=RealDictCursor)
+
+    profile = cursor.execute(
         """
         SELECT *
         FROM profiles
@@ -880,7 +1432,7 @@ def public_portfolio():
         (session["user_id"],)
     ).fetchone()
 
-    education = conn.execute(
+    education = cursor.execute(
         """
         SELECT *
         FROM education
@@ -890,7 +1442,7 @@ def public_portfolio():
         (session["user_id"],)
     ).fetchall()
 
-    skills = conn.execute(
+    skills = cursor.execute(
         """
         SELECT *
         FROM skills
@@ -900,7 +1452,7 @@ def public_portfolio():
         (session["user_id"],)
     ).fetchall()
 
-    projects = conn.execute(
+    projects = cursor.execute(
         """
         SELECT *
         FROM projects
@@ -910,7 +1462,7 @@ def public_portfolio():
         (session["user_id"],)
     ).fetchall()
 
-    certificates = conn.execute(
+    certificates = cursor.execute(
         """
         SELECT *
         FROM certificates
@@ -920,7 +1472,7 @@ def public_portfolio():
         (session["user_id"],)
     ).fetchall()
 
-    theme = conn.execute(
+    theme = cursor.execute(
         """
         SELECT *
         FROM themes
@@ -929,7 +1481,7 @@ def public_portfolio():
         (session["user_id"],)
     ).fetchone()
 
-    resume = conn.execute(
+    resume = cursor.execute(
         """
         SELECT *
         FROM resumes
@@ -940,7 +1492,7 @@ def public_portfolio():
         (session["user_id"],)
     ).fetchone()
 
-    social = conn.execute(
+    social = cursor.execute(
         """
         SELECT *
         FROM social_links
@@ -949,7 +1501,7 @@ def public_portfolio():
         (session["user_id"],)
     ).fetchone()
 
-    experiences = conn.execute(
+    experiences = cursor.execute(
         """
         SELECT *
         FROM experience
@@ -973,38 +1525,171 @@ def public_portfolio():
         theme=theme,
         experiences=experiences
     )
+# =========================================================
+# CERTIFICATES
+# =========================================================
+
+# =========================================================
+# CERTIFICATES
+# =========================================================
+
+@app.route("/certificates", methods=["GET", "POST"])
+def certificates():
+
+    if "user_id" not in session:
+        return redirect(url_for("login"))
+
+    conn = get_db()
+
+    cursor = conn.cursor(
+        cursor_factory=RealDictCursor
+    )
+
+    # =====================================================
+    # ADD CERTIFICATE
+    # =====================================================
+
+    if request.method == "POST":
+
+        certificate_name = request.form["certificate_name"].strip()
+        issuing_organization = request.form["issuing_organization"].strip()
+        issue_date = request.form["issue_date"]
+        certificate_link = request.form["certificate_link"].strip()
+
+        certificate_image = request.files.get(
+            "certificate_image"
+        )
+
+        image_filename = None
+
+        if certificate_image and certificate_image.filename:
+
+            upload_folder = "static/images/certificates"
+
+            os.makedirs(
+                upload_folder,
+                exist_ok=True
+            )
+
+            image_filename = certificate_image.filename
+
+            certificate_image.save(
+                os.path.join(
+                    upload_folder,
+                    image_filename
+                )
+            )
+
+        cursor.execute(
+            """
+            INSERT INTO certificates
+            (
+                user_id,
+                certificate_name,
+                issuing_organization,
+                issue_date,
+                certificate_link,
+                certificate_image
+            )
+            VALUES (%s, %s, %s, %s, %s, %s)
+            """,
+            (
+                session["user_id"],
+                certificate_name,
+                issuing_organization,
+                issue_date,
+                certificate_link,
+                image_filename
+            )
+        )
+
+        conn.commit()
+
+        conn.close()
+
+        return redirect(
+            url_for("certificates")
+        )
 
 
+    # =====================================================
+    # GET CERTIFICATES
+    # =====================================================
+
+    cursor.execute(
+        """
+        SELECT *
+        FROM certificates
+        WHERE user_id = %s
+        ORDER BY id DESC
+        """,
+        (session["user_id"],)
+    )
+
+    certificates_list = cursor.fetchall()
+
+    conn.close()
+
+
+    # =====================================================
+    # SHOW CERTIFICATES
+    # =====================================================
+
+    return render_template(
+        "certificates.html",
+        certificates=certificates_list
+    )
 # =========================================================
 # PUBLIC PORTFOLIO BY USERNAME
 # =========================================================
 
+# =========================================================
+# PUBLIC PORTFOLIO BY USERNAME
+# =========================================================
 
 @app.route("/portfolio/<username>")
 def public_portfolio_by_username(username):
 
     conn = get_db()
 
+    cursor = conn.cursor(
+        cursor_factory=RealDictCursor
+    )
+
     print("USERNAME FROM URL:", username)
 
-    # Find user
-    user = conn.execute(
+
+    # =====================================================
+    # FIND USER
+    # =====================================================
+
+    cursor.execute(
         """
         SELECT *
         FROM users
         WHERE LOWER(username) = LOWER(%s)
         """,
         (username,)
-    ).fetchone()
+    )
 
-    print("USER FOUND:", dict(user) if user else None)
+    user = cursor.fetchone()
 
-    # User not found
+    print(
+        "USER FOUND:",
+        dict(user) if user else None
+    )
+
+
+    # =====================================================
+    # USER NOT FOUND
+    # =====================================================
+
     if not user:
 
         conn.close()
 
-        return "Portfolio not found!"
+        return "Portfolio not found!", 404
+
 
     # =====================================================
     # CHECK PUBLISH STATUS
@@ -1057,7 +1742,182 @@ def public_portfolio_by_username(username):
     user_id = user["id"]
 
 
-    
+    # =====================================================
+    # PROFILE
+    # =====================================================
+
+    cursor.execute(
+        """
+        SELECT *
+        FROM profiles
+        WHERE user_id = %s
+        """,
+        (user_id,)
+    )
+
+    profile = cursor.fetchone()
+
+
+    # =====================================================
+    # EDUCATION
+    # =====================================================
+
+    cursor.execute(
+        """
+        SELECT *
+        FROM education
+        WHERE user_id = %s
+        ORDER BY id DESC
+        """,
+        (user_id,)
+    )
+
+    education = cursor.fetchall()
+
+
+    # =====================================================
+    # SKILLS
+    # =====================================================
+
+    cursor.execute(
+        """
+        SELECT *
+        FROM skills
+        WHERE user_id = %s
+        ORDER BY id DESC
+        """,
+        (user_id,)
+    )
+
+    skills = cursor.fetchall()
+
+
+    # =====================================================
+    # PROJECTS
+    # =====================================================
+
+    cursor.execute(
+        """
+        SELECT *
+        FROM projects
+        WHERE user_id = %s
+        ORDER BY id DESC
+        """,
+        (user_id,)
+    )
+
+    projects = cursor.fetchall()
+
+
+    # =====================================================
+    # PROJECT IMAGES
+    # =====================================================
+
+    cursor.execute(
+        """
+        SELECT pi.*
+        FROM project_images pi
+        INNER JOIN projects p
+            ON pi.project_id = p.id
+        WHERE p.user_id = %s
+        ORDER BY pi.id DESC
+        """,
+        (user_id,)
+    )
+
+    project_images = cursor.fetchall()
+
+
+    # =====================================================
+    # CERTIFICATES
+    # =====================================================
+
+    cursor.execute(
+        """
+        SELECT *
+        FROM certificates
+        WHERE user_id = %s
+        ORDER BY id DESC
+        """,
+        (user_id,)
+    )
+
+    certificates = cursor.fetchall()
+
+
+    # =====================================================
+    # EXPERIENCE
+    # =====================================================
+
+    cursor.execute(
+        """
+        SELECT *
+        FROM experience
+        WHERE user_id = %s
+        ORDER BY id DESC
+        """,
+        (user_id,)
+    )
+
+    experiences = cursor.fetchall()
+
+
+    # =====================================================
+    # RESUME
+    # =====================================================
+
+    cursor.execute(
+        """
+        SELECT *
+        FROM resumes
+        WHERE user_id = %s
+        ORDER BY id DESC
+        LIMIT 1
+        """,
+        (user_id,)
+    )
+
+    resume = cursor.fetchone()
+
+
+    # =====================================================
+    # SOCIAL LINKS
+    # =====================================================
+
+    cursor.execute(
+        """
+        SELECT *
+        FROM social_links
+        WHERE user_id = %s
+        """,
+        (user_id,)
+    )
+
+    social = cursor.fetchone()
+
+
+    # =====================================================
+    # THEME
+    # =====================================================
+
+    cursor.execute(
+        """
+        SELECT *
+        FROM themes
+        WHERE user_id = %s
+        """,
+        (user_id,)
+    )
+
+    theme = cursor.fetchone()
+
+
+    # =====================================================
+    # CLOSE DATABASE
+    # =====================================================
+
+    conn.close()
+
 
     # =====================================================
     # SHOW PUBLIC PORTFOLIO
@@ -1065,6 +1925,8 @@ def public_portfolio_by_username(username):
 
     return render_template(
         "public_portfolio.html",
+
+        user=user,
 
         profile=profile,
 
@@ -1074,15 +1936,18 @@ def public_portfolio_by_username(username):
 
         projects=projects,
 
+        project_images=project_images,
+
         certificates=certificates,
+
+        experiences=experiences,
 
         resume=resume,
 
         social=social,
 
-        theme=theme,
-
-        experiences=experiences
+        theme=theme
+    
     )
 # =========================================================
 # PUBLISH / UNPUBLISH PORTFOLIO
@@ -1095,6 +1960,11 @@ def publish_portfolio():
         return redirect(url_for("login"))
 
     conn = get_db()
+    cursor = conn.cursor()
+
+    # =====================================================
+    # PUBLISH / UNPUBLISH
+    # =====================================================
 
     if request.method == "POST":
 
@@ -1102,7 +1972,7 @@ def publish_portfolio():
 
         if action == "publish":
 
-            conn.execute(
+            cursor.execute(
                 """
                 UPDATE users
                 SET is_published = 1
@@ -1113,7 +1983,7 @@ def publish_portfolio():
 
         elif action == "unpublish":
 
-            conn.execute(
+            cursor.execute(
                 """
                 UPDATE users
                 SET is_published = 0
@@ -1124,35 +1994,47 @@ def publish_portfolio():
 
         conn.commit()
 
-    user = conn.execute(
+
+    # =====================================================
+    # GET USER STATUS
+    # =====================================================
+
+    cursor.execute(
         """
         SELECT username, is_published
         FROM users
         WHERE id = %s
         """,
         (session["user_id"],)
-    ).fetchone()
+    )
+
+    user = cursor.fetchone()
 
     conn.close()
 
+
     if not user:
-        return "User not found!"
+        return "User not found!", 404
+
+
+    # =====================================================
+    # PUBLIC PORTFOLIO URL
+    # =====================================================
 
     portfolio_url = url_for(
         "public_portfolio_by_username",
-        username=user["username"],
+        username=user[0],
         _external=True
     )
 
+
     return render_template(
         "publish_portfolio.html",
-        username=user["username"],
+        username=user[0],
         portfolio_url=portfolio_url,
-        is_published=user["is_published"]
+        is_published=user[1]
     )
-
-
-# =========================================================
+## =========================================================
 # GENERATE PORTFOLIO QR CODE
 # =========================================================
 
@@ -1160,35 +2042,72 @@ def publish_portfolio():
 def generate_portfolio_qr(username):
 
     conn = get_db()
+    cursor = conn.cursor()
 
-    user = conn.execute(
+    # =====================================================
+    # GET USER
+    # =====================================================
+
+    cursor.execute(
         """
         SELECT username, is_published
         FROM users
         WHERE LOWER(username) = LOWER(%s)
         """,
         (username,)
-    ).fetchone()
+    )
+
+    user = cursor.fetchone()
 
     conn.close()
+
+
+    # =====================================================
+    # USER CHECK
+    # =====================================================
 
     if not user:
         return "User not found!", 404
 
-    if user["is_published"] != 1:
+
+    # =====================================================
+    # PUBLISHED CHECK
+    # =====================================================
+
+    if user[1] != 1:
         return "Portfolio is not published yet!", 403
+
+
+    # =====================================================
+    # PORTFOLIO URL
+    # =====================================================
 
     portfolio_url = url_for(
         "public_portfolio_by_username",
-        username=user["username"],
+        username=user[0],
         _external=True
     )
+
+
+    # =====================================================
+    # GENERATE QR CODE
+    # =====================================================
 
     qr = qrcode.make(portfolio_url)
 
     qr_image = BytesIO()
-    qr.save(qr_image, format="PNG")
+
+    qr.save(
+        qr_image,
+        format="PNG"
+    )
+
     qr_image.seek(0)
+
+
+    # =====================================================
+    # SEND QR IMAGE
+    # =====================================================
 
     return send_file(
         qr_image,
@@ -1204,6 +2123,10 @@ def generate_portfolio_qr(username):
 # CHAT HISTORY
 # =========================================================
 
+# =========================================================
+# CHAT HISTORY
+# =========================================================
+
 @app.route("/chat-history", methods=["GET"])
 def chat_history():
 
@@ -1212,15 +2135,23 @@ def chat_history():
 
     conn = get_db()
 
-    chats = conn.execute(
+    cursor = conn.cursor(
+        cursor_factory=RealDictCursor
+    )
+
+    cursor.execute(
         """
         SELECT id, title, created_at, updated_at
         FROM chat_sessions
         WHERE user_id = %s
         ORDER BY updated_at DESC
         """,
-        (session["user_id"],)
-    ).fetchall()
+        (
+            session["user_id"],
+        )
+    )
+
+    chats = cursor.fetchall()
 
     conn.close()
 
@@ -1228,6 +2159,9 @@ def chat_history():
         "chats": [dict(chat) for chat in chats]
     }
 
+# =========================================================
+# GET ONE CHAT HISTORY
+# =========================================================
 
 @app.route("/chat-history/<int:chat_id>", methods=["GET"])
 def get_chat_history(chat_id):
@@ -1237,29 +2171,49 @@ def get_chat_history(chat_id):
 
     conn = get_db()
 
-    chat = conn.execute(
+    cursor = conn.cursor(
+        cursor_factory=RealDictCursor
+    )
+
+    # Get chat
+    cursor.execute(
         """
         SELECT id, title
         FROM chat_sessions
         WHERE id = %s
-        AND user_id = %s
+          AND user_id = %s
         """,
-        (chat_id, session["user_id"])
-    ).fetchone()
+        (
+            chat_id,
+            session["user_id"]
+        )
+    )
+
+    chat = cursor.fetchone()
 
     if not chat:
-        conn.close()
-        return {"error": "Chat not found."}, 404
 
-    messages = conn.execute(
+        conn.close()
+
+        return {
+            "error": "Chat not found."
+        }, 404
+
+
+    # Get messages
+    cursor.execute(
         """
         SELECT role, message, created_at
         FROM chat_messages
         WHERE session_id = %s
         ORDER BY id ASC
         """,
-        (chat_id,)
-    ).fetchall()
+        (
+            chat_id,
+        )
+    )
+
+    messages = cursor.fetchall()
 
     conn.close()
 
@@ -1268,7 +2222,7 @@ def get_chat_history(chat_id):
         "messages": [dict(message) for message in messages]
     }
 # =========================================================
-# AI PORTFOLIO CHATBOT
+# AI PORTFOLIO CHATBOT PAGE
 # =========================================================
 
 @app.route("/chatbot")
@@ -1277,8 +2231,12 @@ def chatbot():
     if "user_id" not in session:
         return redirect(url_for("login"))
 
-    return render_template("chatbot.html")
-
+    return render_template(
+        "chatbot.html"
+    )
+# =========================================================
+# AI PORTFOLIO CHATBOT
+# =========================================================
 
 @app.route("/ai-chat", methods=["POST"])
 def ai_chat():
@@ -1289,10 +2247,16 @@ def ai_chat():
             "chat_id": None
         }, 401
 
-    data = request.get_json()
 
-    user_message = data.get("message", "").strip()
+    data = request.get_json() or {}
+
+    user_message = data.get(
+        "message",
+        ""
+    ).strip()
+
     chat_id = data.get("chat_id")
+
 
     if not user_message:
         return {
@@ -1300,69 +2264,105 @@ def ai_chat():
             "chat_id": chat_id
         }, 400
 
+
     conn = None
 
     try:
 
+        # =================================================
+        # DATABASE
+        # =================================================
+
         conn = get_db()
+
+        cursor = conn.cursor(
+            cursor_factory=RealDictCursor
+        )
 
 
         # =================================================
         # CREATE / CHECK CHAT
         # =================================================
 
-       if chat_id:
+        if chat_id:
 
-    chat = conn.execute(
-        """
-        SELECT id
-        FROM chat_sessions
-        WHERE id = %s
-        AND user_id = %s
-        """,
-        (chat_id, session["user_id"])
-    ).fetchone()
+            cursor.execute(
+                """
+                SELECT id
+                FROM chat_sessions
+                WHERE id = %s
+                  AND user_id = %s
+                """,
+                (
+                    chat_id,
+                    session["user_id"]
+                )
+            )
 
-    if not chat:
-        chat_id = None
+            chat = cursor.fetchone()
+
+            if not chat:
+                chat_id = None
 
 
-if not chat_id:
+        # =================================================
+        # CREATE NEW CHAT
+        # =================================================
 
-    cursor = conn.execute(
-        """
-        INSERT INTO chat_sessions
-        (user_id, title)
-        VALUES (%s, %s)
-        RETURNING id
-        """,
-        (session["user_id"], "New Chat")
-    )
+        if not chat_id:
 
-    chat_id = cursor.fetchone()[id]
+            cursor.execute(
+                """
+                INSERT INTO chat_sessions
+                (
+                    user_id,
+                    title
+                )
+                VALUES (%s, %s)
+                RETURNING id
+                """,
+                (
+                    session["user_id"],
+                    "New Chat"
+                )
+            )
 
-    conn.commit()
+            new_chat = cursor.fetchone()
+
+            chat_id = new_chat["id"]
+
+            conn.commit()
+
 
         # =================================================
         # SAVE USER MESSAGE
         # =================================================
 
-        conn.execute(
+        cursor.execute(
             """
             INSERT INTO chat_messages
-            (session_id, role, message)
-           VALUES (%s, %s, %s)
+            (
+                session_id,
+                role,
+                message
+            )
+            VALUES (%s, %s, %s)
             """,
-            (chat_id, "user", user_message)
+            (
+                chat_id,
+                "user",
+                user_message
+            )
         )
 
         conn.commit()
+
 
         # =================================================
         # GET PREVIOUS CHAT
         # =================================================
 
-        previous_messages = conn.execute(
+        cursor.execute(
             """
             SELECT role, message
             FROM chat_messages
@@ -1370,18 +2370,30 @@ if not chat_id:
             ORDER BY id ASC
             LIMIT 30
             """,
-            (chat_id,)
-        ).fetchall()
+            (
+                chat_id,
+            )
+        )
+
+        previous_messages = cursor.fetchall()
+
 
         conversation = ""
 
         for msg in previous_messages:
 
             if msg["role"] == "user":
-                conversation += f"User: {msg['message']}\n"
+
+                conversation += (
+                    f"User: {msg['message']}\n"
+                )
 
             else:
-                conversation += f"Assistant: {msg['message']}\n"
+
+                conversation += (
+                    f"Assistant: {msg['message']}\n"
+                )
+
 
         # =================================================
         # GET PORTFOLIO DATA
@@ -1389,68 +2401,111 @@ if not chat_id:
 
         user_id = session["user_id"]
 
-        user = conn.execute(
+
+        # USER
+        cursor.execute(
             """
             SELECT username, email
             FROM users
             WHERE id = %s
             """,
-            (user_id,)
-        ).fetchone()
+            (
+                user_id,
+            )
+        )
 
-        profile = conn.execute(
+        user = cursor.fetchone()
+
+
+        # PROFILE
+        cursor.execute(
             """
             SELECT *
             FROM profiles
             WHERE user_id = %s
             """,
-            (user_id,)
-        ).fetchone()
+            (
+                user_id,
+            )
+        )
 
-        education = conn.execute(
+        profile = cursor.fetchone()
+
+
+        # EDUCATION
+        cursor.execute(
             """
             SELECT *
             FROM education
             WHERE user_id = %s
             """,
-            (user_id,)
-        ).fetchall()
+            (
+                user_id,
+            )
+        )
 
-        skills = conn.execute(
+        education = cursor.fetchall()
+
+
+        # SKILLS
+        cursor.execute(
             """
             SELECT *
             FROM skills
             WHERE user_id = %s
             """,
-            (user_id,)
-        ).fetchall()
+            (
+                user_id,
+            )
+        )
 
-        projects = conn.execute(
+        skills = cursor.fetchall()
+
+
+        # PROJECTS
+        cursor.execute(
             """
             SELECT *
             FROM projects
             WHERE user_id = %s
             """,
-            (user_id,)
-        ).fetchall()
+            (
+                user_id,
+            )
+        )
 
-        certificates = conn.execute(
+        projects = cursor.fetchall()
+
+
+        # CERTIFICATES
+        cursor.execute(
             """
             SELECT *
             FROM certificates
             WHERE user_id = %s
             """,
-            (user_id,)
-        ).fetchall()
+            (
+                user_id,
+            )
+        )
 
-        experiences = conn.execute(
+        certificates = cursor.fetchall()
+
+
+        # EXPERIENCE
+        cursor.execute(
             """
             SELECT *
             FROM experience
             WHERE user_id = %s
             """,
-            (user_id,)
-        ).fetchall()
+            (
+                user_id,
+            )
+        )
+
+        experiences = cursor.fetchall()
+
 
         # =================================================
         # GEMINI PROMPT
@@ -1464,16 +2519,20 @@ You are helping the logged-in portfolio owner.
 Answer the user's question clearly and naturally.
 
 IMPORTANT:
--You can answer general questions also, but never treat a suggested career field or example as the user's actual interest unless the user explicitly says so.
+
+- You can answer general questions also.
+- Never treat a suggested career field or example as the user's actual interest unless the user explicitly says so.
 - For personal portfolio information, use the portfolio data provided below.
 - Do not invent personal information.
 - NEVER guess or assume any personal information.
 - Use only the portfolio data and information explicitly provided by the user.
-- If the requested personal information is unavailable, say "This information is not available in your portfolio."
-- If a personal detail is not available, say that it is not available.
+- If the requested personal information is unavailable, say:
+  "This information is not available in your portfolio."
 - Be helpful and concise.
 - You can help with resume, projects, skills, certificates,
-  education, experience, portfolio improvement and AI/ML/Data Science topics.
+  education, experience, portfolio improvement and
+  AI/ML/Data Science topics.
+
 
 PORTFOLIO DATA:
 
@@ -1501,16 +2560,20 @@ Certificates:
 Experience:
 {[dict(x) for x in experiences]}
 
+
 PREVIOUS CONVERSATION:
 
 {conversation}
+
 
 CURRENT USER MESSAGE:
 
 {user_message}
 
+
 Give the best possible answer.
 """
+
 
         # =================================================
         # GEMINI AI
@@ -1523,78 +2586,115 @@ Give the best possible answer.
 
         reply = response.text
 
+
         # =================================================
         # SAVE AI RESPONSE
         # =================================================
 
-        conn.execute(
+        cursor.execute(
             """
             INSERT INTO chat_messages
-            (session_id, role, message)
+            (
+                session_id,
+                role,
+                message
+            )
             VALUES (%s, %s, %s)
             """,
-            (chat_id, "assistant", reply)
+            (
+                chat_id,
+                "assistant",
+                reply
+            )
         )
+
 
         # =================================================
         # UPDATE CHAT TITLE
         # =================================================
 
-        current_chat = conn.execute(
+        cursor.execute(
             """
             SELECT title
             FROM chat_sessions
             WHERE id = %s
             """,
-            (chat_id,)
-        ).fetchone()
+            (
+                chat_id,
+            )
+        )
 
-        if current_chat and current_chat["title"] == "New Chat":
+        current_chat = cursor.fetchone()
+
+
+        if (
+            current_chat
+            and current_chat["title"] == "New Chat"
+        ):
 
             title = user_message[:40]
 
-            conn.execute(
+            cursor.execute(
                 """
                 UPDATE chat_sessions
-                SET title = %s,
+                SET
+                    title = %s,
                     updated_at = CURRENT_TIMESTAMP
                 WHERE id = %s
                 """,
-                (title, chat_id)
+                (
+                    title,
+                    chat_id
+                )
             )
 
         else:
 
-            conn.execute(
+            cursor.execute(
                 """
                 UPDATE chat_sessions
                 SET updated_at = CURRENT_TIMESTAMP
                 WHERE id = %s
                 """,
-                (chat_id,)
+                (
+                    chat_id,
+                )
             )
 
+
         conn.commit()
+
+
+        # =================================================
+        # SUCCESS
+        # =================================================
 
         return {
             "reply": reply,
             "chat_id": chat_id
         }
 
+
     except Exception as e:
 
-        print("Gemini Error:", e)
+        print(
+            "Gemini Error:",
+            e
+        )
+
+        if conn:
+            conn.rollback()
 
         return {
             "reply": "Sorry, something went wrong while connecting to the AI. Please try again.",
             "chat_id": chat_id
         }, 500
 
+
     finally:
 
         if conn:
             conn.close()
-
     
 
 # =========================================================
@@ -1632,141 +2732,97 @@ def logout():
 # =========================================================
 # SKILLS
 # =========================================================
+
 @app.route("/skills", methods=["GET", "POST"])
 def skills():
 
-    # Login check
+    # =====================================================
+    # LOGIN CHECK
+    # =====================================================
 
     if "user_id" not in session:
-
         return redirect(url_for("login"))
 
 
+    conn = get_db()
+
+    cursor = conn.cursor(
+        cursor_factory=RealDictCursor
+    )
+
+
+    # =====================================================
+    # ADD SKILL
+    # =====================================================
+
     if request.method == "POST":
 
-        skill_name = request.form["skill_name"]
+        skill_name = request.form.get(
+            "skill_name",
+            ""
+        ).strip()
 
-        conn = get_db()
 
-        conn.execute(
-            """
-            INSERT INTO skills
-            (
-                user_id,
-                skill_name
+        if skill_name:
+
+            cursor.execute(
+                """
+                INSERT INTO skills
+                (
+                    user_id,
+                    skill_name
+                )
+                VALUES (%s, %s)
+                """,
+                (
+                    session["user_id"],
+                    skill_name
+                )
             )
-            VALUES (%s, %s)
-            """,
-            (
-                session["user_id"],
-                skill_name
-            )
-        )
 
-        conn.commit()
+            conn.commit()
+
 
         conn.close()
 
-        return redirect(url_for("dashboard"))
+        return redirect(
+            url_for("skills")
+        )
 
 
-    # Get saved skills
+    # =====================================================
+    # GET SAVED SKILLS
+    # =====================================================
 
-    conn = get_db()
-
-    skills = conn.execute(
+    cursor.execute(
         """
         SELECT *
         FROM skills
         WHERE user_id = %s
         ORDER BY id DESC
         """,
-        (session["user_id"],)
-    ).fetchall()
+        (
+            session["user_id"],
+        )
+    )
+
+    skills_list = cursor.fetchall()
 
     conn.close()
+
+
+    # =====================================================
+    # DISPLAY SKILLS
+    # =====================================================
 
     return render_template(
         "skills.html",
-        skills=skills
+        skills=skills_list
     )
-@app.route("/certificates", methods=["GET", "POST"])
-def certificates():
+# =========================================================
+# DELETE CERTIFICATE
+# =========================================================
 
-    if "user_id" not in session:
-        return redirect(url_for("login"))
-
-    if request.method == "POST":
-
-        certificate_name = request.form["certificate_name"]
-        issuing_organization = request.form["issuing_organization"]
-        issue_date = request.form["issue_date"]
-        certificate_link = request.form["certificate_link"]
-
-        certificate_image = request.files.get("certificate_image")
-
-        image_filename = None
-
-        if certificate_image and certificate_image.filename:
-
-            image_filename = certificate_image.filename
-
-            upload_folder = "static/images/certificates"
-
-            os.makedirs(upload_folder, exist_ok=True)
-
-            certificate_image.save(
-                os.path.join(upload_folder, image_filename)
-            )
-
-        conn = get_db()
-
-        conn.execute(
-            """
-            INSERT INTO certificates
-            (
-                user_id,
-                certificate_name,
-                issuing_organization,
-                issue_date,
-                certificate_link,
-                certificate_image
-            )
-            VALUES (%s, %s, %s, %s, %s, %s)
-            """,
-            (
-                session["user_id"],
-                certificate_name,
-                issuing_organization,
-                issue_date,
-                certificate_link,
-                image_filename
-            )
-        )
-
-        conn.commit()
-        conn.close()
-
-        return redirect(url_for("certificates"))
-
-    conn = get_db()
-
-    certificates = conn.execute(
-        """
-        SELECT *
-        FROM certificates
-        WHERE user_id = %s
-        ORDER BY id DESC
-        """,
-        (session["user_id"],)
-    ).fetchall()
-
-    conn.close()
-
-    return render_template(
-        "certificates.html",
-        certificates=certificates
-    )
 @app.route("/delete-certificate/<int:certificate_id>")
 def delete_certificate(certificate_id):
 
@@ -1775,18 +2831,29 @@ def delete_certificate(certificate_id):
 
     conn = get_db()
 
-    conn.execute(
+    cursor = conn.cursor()
+
+    cursor.execute(
         """
         DELETE FROM certificates
         WHERE id = %s AND user_id = %s
         """,
-        (certificate_id, session["user_id"])
+        (
+            certificate_id,
+            session["user_id"]
+        )
     )
 
     conn.commit()
     conn.close()
 
     return redirect(url_for("certificates"))
+
+
+# =========================================================
+# DELETE SKILL
+# =========================================================
+
 @app.route("/delete-skill/<int:skill_id>")
 def delete_skill(skill_id):
 
@@ -1795,21 +2862,33 @@ def delete_skill(skill_id):
 
     conn = get_db()
 
-    conn.execute(
+    cursor = conn.cursor()
+
+    cursor.execute(
         """
         DELETE FROM skills
         WHERE id = %s AND user_id = %s
         """,
-        (skill_id, session["user_id"])
+        (
+            skill_id,
+            session["user_id"]
+        )
     )
 
     conn.commit()
     conn.close()
+
+    return redirect(url_for("skills"))
+
+
 # =========================================================
 # EDIT CERTIFICATE
 # =========================================================
 
-@app.route("/edit-certificate/<int:certificate_id>", methods=["GET", "POST"])
+@app.route(
+    "/edit-certificate/<int:certificate_id>",
+    methods=["GET", "POST"]
+)
 def edit_certificate(certificate_id):
 
     if "user_id" not in session:
@@ -1817,7 +2896,16 @@ def edit_certificate(certificate_id):
 
     conn = get_db()
 
-    certificate = conn.execute(
+    cursor = conn.cursor(
+        cursor_factory=RealDictCursor
+    )
+
+
+    # =====================================================
+    # GET CERTIFICATE
+    # =====================================================
+
+    cursor.execute(
         """
         SELECT *
         FROM certificates
@@ -1827,20 +2915,46 @@ def edit_certificate(certificate_id):
             certificate_id,
             session["user_id"]
         )
-    ).fetchone()
+    )
+
+    certificate = cursor.fetchone()
+
+
+    # =====================================================
+    # CERTIFICATE NOT FOUND
+    # =====================================================
 
     if not certificate:
+
         conn.close()
-        return "Certificate not found!"
+
+        return "Certificate not found!", 404
+
+
+    # =====================================================
+    # UPDATE CERTIFICATE
+    # =====================================================
 
     if request.method == "POST":
 
-        certificate_name = request.form["certificate_name"]
-        issuing_organization = request.form["issuing_organization"]
-        issue_date = request.form["issue_date"]
-        certificate_link = request.form["certificate_link"]
+        certificate_name = request.form[
+            "certificate_name"
+        ].strip()
 
-        conn.execute(
+        issuing_organization = request.form[
+            "issuing_organization"
+        ].strip()
+
+        issue_date = request.form[
+            "issue_date"
+        ]
+
+        certificate_link = request.form[
+            "certificate_link"
+        ].strip()
+
+
+        cursor.execute(
             """
             UPDATE certificates
             SET
@@ -1848,7 +2962,8 @@ def edit_certificate(certificate_id):
                 issuing_organization = %s,
                 issue_date = %s,
                 certificate_link = %s
-            WHERE id = %s AND user_id = %s
+            WHERE id = %s
+              AND user_id = %s
             """,
             (
                 certificate_name,
@@ -1863,7 +2978,14 @@ def edit_certificate(certificate_id):
         conn.commit()
         conn.close()
 
-        return redirect(url_for("certificates"))
+        return redirect(
+            url_for("certificates")
+        )
+
+
+    # =====================================================
+    # EDIT PAGE
+    # =====================================================
 
     conn.close()
 
@@ -1883,36 +3005,66 @@ def resume():
 
     conn = get_db()
 
+    cursor = conn.cursor(
+        cursor_factory=RealDictCursor
+    )
+
+
+    # =====================================================
+    # UPLOAD RESUME
+    # =====================================================
+
     if request.method == "POST":
 
-        resume_file = request.files.get("resume_file")
+        resume_file = request.files.get(
+            "resume_file"
+        )
 
         if resume_file and resume_file.filename:
 
             upload_folder = "static/images/resumes"
 
-            os.makedirs(upload_folder, exist_ok=True)
+            os.makedirs(
+                upload_folder,
+                exist_ok=True
+            )
 
             filename = resume_file.filename
 
             resume_file.save(
-                os.path.join(upload_folder, filename)
+                os.path.join(
+                    upload_folder,
+                    filename
+                )
             )
 
-            # Remove old resume record
-            conn.execute(
+
+            # ---------------------------------------------
+            # REMOVE OLD RESUME RECORD
+            # ---------------------------------------------
+
+            cursor.execute(
                 """
                 DELETE FROM resumes
                 WHERE user_id = %s
                 """,
-                (session["user_id"],)
+                (
+                    session["user_id"],
+                )
             )
 
-            # Save new resume
-            conn.execute(
+
+            # ---------------------------------------------
+            # SAVE NEW RESUME
+            # ---------------------------------------------
+
+            cursor.execute(
                 """
                 INSERT INTO resumes
-                (user_id, resume_file)
+                (
+                    user_id,
+                    resume_file
+                )
                 VALUES (%s, %s)
                 """,
                 (
@@ -1923,11 +3075,19 @@ def resume():
 
             conn.commit()
 
+
         conn.close()
 
-        return redirect(url_for("resume"))
+        return redirect(
+            url_for("resume")
+        )
 
-    resume = conn.execute(
+
+    # =====================================================
+    # GET CURRENT RESUME
+    # =====================================================
+
+    cursor.execute(
         """
         SELECT *
         FROM resumes
@@ -1935,16 +3095,24 @@ def resume():
         ORDER BY id DESC
         LIMIT 1
         """,
-        (session["user_id"],)
-    ).fetchone()
+        (
+            session["user_id"],
+        )
+    )
+
+    resume_data = cursor.fetchone()
 
     conn.close()
 
+
+    # =====================================================
+    # SHOW RESUME
+    # =====================================================
+
     return render_template(
         "resume.html",
-        resume=resume
+        resume=resume_data
     )
-
 # =========================================================
 # SOCIAL LINKS
 # =========================================================
@@ -1957,28 +3125,67 @@ def social_links():
 
     conn = get_db()
 
+    cursor = conn.cursor(
+        cursor_factory=RealDictCursor
+    )
+
+
+    # =====================================================
+    # SAVE / UPDATE SOCIAL LINKS
+    # =====================================================
+
     if request.method == "POST":
 
-        linkedin = request.form["linkedin"]
-        github = request.form["github"]
-        email = request.form["email"]
-        portfolio = request.form["portfolio"]
+        linkedin = request.form.get(
+            "linkedin",
+            ""
+        ).strip()
 
-        existing = conn.execute(
+        github = request.form.get(
+            "github",
+            ""
+        ).strip()
+
+        email = request.form.get(
+            "email",
+            ""
+        ).strip()
+
+        portfolio = request.form.get(
+            "portfolio",
+            ""
+        ).strip()
+
+
+        # =================================================
+        # CHECK EXISTING
+        # =================================================
+
+        cursor.execute(
             """
             SELECT *
             FROM social_links
             WHERE user_id = %s
             """,
-            (session["user_id"],)
-        ).fetchone()
+            (
+                session["user_id"],
+            )
+        )
+
+        existing = cursor.fetchone()
+
+
+        # =================================================
+        # UPDATE
+        # =================================================
 
         if existing:
 
-            conn.execute(
+            cursor.execute(
                 """
                 UPDATE social_links
-                SET linkedin = %s,
+                SET
+                    linkedin = %s,
                     github = %s,
                     email = %s,
                     portfolio = %s
@@ -1993,9 +3200,14 @@ def social_links():
                 )
             )
 
+
+        # =================================================
+        # INSERT
+        # =================================================
+
         else:
 
-            conn.execute(
+            cursor.execute(
                 """
                 INSERT INTO social_links
                 (
@@ -2016,27 +3228,49 @@ def social_links():
                 )
             )
 
+
         conn.commit()
 
         conn.close()
 
-        return redirect(url_for("social_links"))
+        return redirect(
+            url_for("social_links")
+        )
 
-    social = conn.execute(
+
+    # =====================================================
+    # GET SOCIAL LINKS
+    # =====================================================
+
+    cursor.execute(
         """
         SELECT *
         FROM social_links
         WHERE user_id = %s
         """,
-        (session["user_id"],)
-    ).fetchone()
+        (
+            session["user_id"],
+        )
+    )
+
+    social = cursor.fetchone()
 
     conn.close()
+
+
+    # =====================================================
+    # SHOW SOCIAL LINKS
+    # =====================================================
 
     return render_template(
         "social_links.html",
         social=social
     )
+
+# =========================================================
+# THEME SETTINGS
+# =========================================================
+
 @app.route("/theme-settings", methods=["GET", "POST"])
 def theme_settings():
 
@@ -2045,84 +3279,151 @@ def theme_settings():
 
     conn = get_db()
 
+    cursor = conn.cursor(
+        cursor_factory=RealDictCursor
+    )
+
+
+    # =====================================================
+    # SAVE / UPDATE THEME
+    # =====================================================
+
     if request.method == "POST":
 
-        theme_color = request.form["theme_color"]
-        background_color = request.form["background_color"]
-        font_style = request.form["font_style"]
-        background_style = request.form["background_style"]
-        existing = conn.execute(
+        theme_color = request.form.get(
+            "theme_color",
+            ""
+        ).strip()
+
+        background_color = request.form.get(
+            "background_color",
+            ""
+        ).strip()
+
+        font_style = request.form.get(
+            "font_style",
+            ""
+        ).strip()
+
+        background_style = request.form.get(
+            "background_style",
+            ""
+        ).strip()
+
+
+        # =================================================
+        # CHECK EXISTING THEME
+        # =================================================
+
+        cursor.execute(
             """
             SELECT *
             FROM themes
             WHERE user_id = %s
             """,
-            (session["user_id"],)
-        ).fetchone()
+            (
+                session["user_id"],
+            )
+        )
+
+        existing = cursor.fetchone()
+
+
+        # =================================================
+        # UPDATE EXISTING THEME
+        # =================================================
 
         if existing:
 
-            conn.execute(
+            cursor.execute(
                 """
                 UPDATE themes
-SET theme_color = %s,
-    background_color = %s,
-    font_style = %s,
-    background_style = %s
-WHERE user_id = %s
+                SET
+                    theme_color = %s,
+                    background_color = %s,
+                    font_style = %s,
+                    background_style = %s
+                WHERE user_id = %s
                 """,
                 (
-    theme_color,
-    background_color,
-    font_style,
-    background_style,
-    session["user_id"]
-)
+                    theme_color,
+                    background_color,
+                    font_style,
+                    background_style,
+                    session["user_id"]
+                )
             )
+
+
+        # =================================================
+        # INSERT NEW THEME
+        # =================================================
 
         else:
 
-            conn.execute(
+            cursor.execute(
                 """
                 INSERT INTO themes
-(
-    user_id,
-    theme_color,
-    background_color,
-    font_style,
-    background_style
-)
-VALUES (%s, %s, %s, %s, %s)
+                (
+                    user_id,
+                    theme_color,
+                    background_color,
+                    font_style,
+                    background_style
+                )
+                VALUES (%s, %s, %s, %s, %s)
                 """,
                 (
-    session["user_id"],
-    theme_color,
-    background_color,
-    font_style,
-    background_style
-)
+                    session["user_id"],
+                    theme_color,
+                    background_color,
+                    font_style,
+                    background_style
+                )
             )
 
+
         conn.commit()
+
         conn.close()
 
-        return redirect(url_for("theme_settings"))
+        return redirect(
+            url_for("theme_settings")
+        )
 
-    theme = conn.execute(
+
+    # =====================================================
+    # GET CURRENT THEME
+    # =====================================================
+
+    cursor.execute(
         """
         SELECT *
         FROM themes
         WHERE user_id = %s
         """,
-        (session["user_id"],)
-    ).fetchone()
+        (
+            session["user_id"],
+        )
+    )
+
+    theme = cursor.fetchone()
 
     conn.close()
+
+
+    # =====================================================
+    # DISPLAY THEME SETTINGS
+    # =====================================================
 
     return render_template(
         "theme_settings.html",
         theme=theme
     )
+# =========================================================
+# DELETE RESUME
+# =========================================================
+
 # =========================================================
 # DELETE RESUME
 # =========================================================
@@ -2134,8 +3435,9 @@ def delete_resume():
         return redirect(url_for("login"))
 
     conn = get_db()
+    cursor = conn.cursor()
 
-    conn.execute(
+    cursor.execute(
         """
         DELETE FROM resumes
         WHERE user_id = %s
@@ -2147,8 +3449,16 @@ def delete_resume():
     conn.close()
 
     return redirect(url_for("resume"))
-    return redirect(url_for("skills"))
-@app.route("/edit-skill/<int:skill_id>", methods=["GET", "POST"])
+
+
+# =========================================================
+# EDIT SKILL
+# =========================================================
+
+@app.route(
+    "/edit-skill/<int:skill_id>",
+    methods=["GET", "POST"]
+)
 def edit_skill(skill_id):
 
     if "user_id" not in session:
@@ -2156,40 +3466,83 @@ def edit_skill(skill_id):
 
     conn = get_db()
 
-    skill = conn.execute(
+    cursor = conn.cursor(
+        cursor_factory=RealDictCursor
+    )
+
+
+    # =====================================================
+    # GET SKILL
+    # =====================================================
+
+    cursor.execute(
         """
         SELECT *
         FROM skills
-        WHERE id = %s AND user_id = %s
+        WHERE id = %s
+          AND user_id = %s
         """,
-        (skill_id, session["user_id"])
-    ).fetchone()
+        (
+            skill_id,
+            session["user_id"]
+        )
+    )
+
+    skill = cursor.fetchone()
+
+
+    # =====================================================
+    # SKILL NOT FOUND
+    # =====================================================
 
     if not skill:
+
         conn.close()
-        return "Skill not found!"
+
+        return "Skill not found!", 404
+
+
+    # =====================================================
+    # UPDATE SKILL
+    # =====================================================
 
     if request.method == "POST":
 
-        skill_name = request.form["skill_name"]
+        skill_name = request.form.get(
+            "skill_name",
+            ""
+        ).strip()
 
-        conn.execute(
-            """
-            UPDATE skills
-            SET skill_name = %s
-            WHERE id = %s AND user_id = %s
-            """,
-            (
-                skill_name,
-                skill_id,
-                session["user_id"]
+
+        if skill_name:
+
+            cursor.execute(
+                """
+                UPDATE skills
+                SET skill_name = %s
+                WHERE id = %s
+                  AND user_id = %s
+                """,
+                (
+                    skill_name,
+                    skill_id,
+                    session["user_id"]
+                )
             )
-        )
 
-        conn.commit()
+            conn.commit()
+
+
         conn.close()
 
-        return redirect(url_for("skills"))
+        return redirect(
+            url_for("skills")
+        )
+
+
+    # =====================================================
+    # SHOW EDIT PAGE
+    # =====================================================
 
     conn.close()
 
@@ -2197,7 +3550,6 @@ def edit_skill(skill_id):
         "edit_skill.html",
         skill=skill
     )
-
 # =========================================================
 # RUN APPLICATION
 # =========================================================

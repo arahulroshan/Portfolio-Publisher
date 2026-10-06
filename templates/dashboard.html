@@ -15,21 +15,26 @@
 
 </head>
 
-<body>
+
 <body>
 
-    <!-- FUTURISTIC BACKGROUND -->
+    <!-- ================= FUTURISTIC BACKGROUND ================= -->
 
     <div class="neon-particles" aria-hidden="true">
+
         <span></span>
         <span></span>
         <span></span>
         <span></span>
         <span></span>
         <span></span>
+
     </div>
 
+
     <div class="neon-lightning" aria-hidden="true"></div>
+
+
     <!-- ================= NAVBAR ================= -->
 
     <nav class="navbar">
@@ -38,13 +43,14 @@
             Portfolio Publisher
         </div>
 
+
         <div class="nav-links">
 
-            <a href="/">
+            <a href="{{ url_for('home') }}">
                 Home
             </a>
 
-            <a href="/logout">
+            <a href="{{ url_for('logout') }}">
                 Logout
             </a>
 
@@ -56,6 +62,9 @@
     <!-- ================= DASHBOARD ================= -->
 
     <section class="dashboard">
+
+
+        <!-- ================= HEADER ================= -->
 
         <div class="dashboard-header">
 
@@ -70,7 +79,11 @@
         </div>
 
 
+
+        <!-- ================= DASHBOARD GRID ================= -->
+
         <div class="dashboard-grid">
+
 
 
             <!-- ================= PROFILE ================= -->
@@ -96,6 +109,7 @@
             </div>
 
 
+
             <!-- ================= EDUCATION ================= -->
 
             <div class="dashboard-card">
@@ -117,6 +131,7 @@
                 </a>
 
             </div>
+
 
 
             <!-- ================= SKILLS ================= -->
@@ -142,6 +157,7 @@
             </div>
 
 
+
             <!-- ================= PROJECTS ================= -->
 
             <div class="dashboard-card">
@@ -165,6 +181,7 @@
             </div>
 
 
+
             <!-- ================= CERTIFICATES ================= -->
 
             <div class="dashboard-card">
@@ -178,7 +195,7 @@
                 </h2>
 
                 <p>
-                    Add your achievements.
+                    Add and showcase your achievements.
                 </p>
 
                 <a href="{{ url_for('certificates') }}">
@@ -186,6 +203,7 @@
                 </a>
 
             </div>
+
 
 
             <!-- ================= EXPERIENCE ================= -->
@@ -211,6 +229,7 @@
             </div>
 
 
+
             <!-- ================= RESUME ================= -->
 
             <div class="dashboard-card">
@@ -234,6 +253,7 @@
             </div>
 
 
+
             <!-- ================= SOCIAL LINKS ================= -->
 
             <div class="dashboard-card">
@@ -247,7 +267,7 @@
                 </h2>
 
                 <p>
-                    Manage your LinkedIn, GitHub and portfolio links.
+                    Manage your LinkedIn, GitHub and other links.
                 </p>
 
                 <a href="{{ url_for('social_links') }}">
@@ -255,6 +275,7 @@
                 </a>
 
             </div>
+
 
 
             <!-- ================= CUSTOMIZE PORTFOLIO ================= -->
@@ -280,6 +301,7 @@
             </div>
 
 
+
             <!-- ================= PUBLISH PORTFOLIO ================= -->
 
             <div class="dashboard-card">
@@ -301,31 +323,36 @@
                 </a>
 
             </div>
-<!-- ================= AI PORTFOLIO ASSISTANT ================= -->
 
-<div class="dashboard-card">
 
-    <div class="card-icon">
-        🤖
-    </div>
 
-    <h2>
-        AI Portfolio Assistant
-    </h2>
+            <!-- ================= AI PORTFOLIO ASSISTANT ================= -->
 
-    <p>
-        Let visitors ask questions about your portfolio using AI.
-    </p>
+            <div class="dashboard-card">
 
-    <a href="{{ url_for('chatbot') }}">
-        Open AI Assistant
-    </a>
+                <div class="card-icon">
+                    🤖
+                </div>
 
-</div>
+                <h2>
+                    AI Portfolio Assistant
+                </h2>
+
+                <p>
+                    Let visitors ask questions about your portfolio using AI.
+                </p>
+
+                <a href="{{ url_for('chatbot') }}">
+                    Open AI Assistant
+                </a>
+
+            </div>
+
 
         </div>
 
     </section>
+
 
 </body>
 
